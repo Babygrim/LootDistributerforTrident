@@ -1,0 +1,2 @@
+-- Stub for event and ticker frame
+-- Add CHAT_MSG_LOOT logic and ticker handler
