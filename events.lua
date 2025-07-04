@@ -70,9 +70,7 @@ eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         end
 
         if (GetNumRaidMembers() > 0 or GetNumRaidMembers() == 0) and lootMethod ~= "master" then
-            if masterLooterName == nil then
-                print("|cffFF4500[LootDistributer]|r Loot roll module disabled.")
-            end
+            print("|cffFF4500[LootDistributer]|r Loot roll module disabled.")
         end
         return
     end
