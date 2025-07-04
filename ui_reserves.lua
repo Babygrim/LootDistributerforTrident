@@ -1,2 +1,0 @@
--- Stub for reserves table UI
--- Fill with headers, rows, search box, delete button

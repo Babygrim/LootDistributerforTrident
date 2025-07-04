@@ -1,0 +1,13 @@
+## Interface: 30300
+## Title: Loot Distributer for Trident
+## Notes: Soft-reserve manager with CSV import and trade timer display
+## Author: Wooah Blackbethy bam balam
+## Version: 1.0
+## SavedVariables: SoftResSaved, SoftResCSV, SoftResLootedTimestamps, LootWatcherData, LootWatcherGoldGained
+
+init.lua
+ui.lua
+commands.lua
+events.lua
+logic.lua
+popups.lua
