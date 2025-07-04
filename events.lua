@@ -1,5 +1,6 @@
 local addonName, addonTable = ...
 local f = addonTable.main_frame
+local LootWatcherActivated = false
 
 
 -- Import CSV click event
@@ -55,17 +56,10 @@ end)
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("CHAT_MSG_LOOT")
 eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
+eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 
 eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
-    if event == "RAID_ROSTER_UPDATE" then
-        if GetNumRaidMembers() > 0 then
-            print("|cff00FF00[LootDistributer]|r You have joined the raid group. Loot Watcher activated.")
-        end
-
-        if GetNumRaidMembers() == 0 then
-            print("|cffFF4500[LootDistributer]|r You have left the raid group. Loot Watcher deactivated.")
-        end
-
+    if event == "PARTY_LOOT_METHOD_CHANGED" then
         local lootMethod, masterLooter = GetLootMethod()
 
         if GetNumRaidMembers() > 0 and lootMethod == "master" then
@@ -80,6 +74,20 @@ eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                 print("|cffFF4500[LootDistributer]|r Loot roll module disabled.")
             end
         end
+        return
+    end
+
+    if event == "RAID_ROSTER_UPDATE" then
+        if GetNumRaidMembers() > 0 and not LootWatcherActivated then
+            print("|cff00FF00[LootDistributer]|r You have joined the raid group. Loot Watcher activated.")
+            LootWatcherActivated = true
+        end
+
+        if GetNumRaidMembers() == 0 and LootWatcherActivated then
+            print("|cffFF4500[LootDistributer]|r You have left the raid group. Loot Watcher deactivated.")
+            LootWatcherActivated = false
+        end
+        return
     end
 
     if event == "CHAT_MSG_LOOT" then
@@ -151,5 +159,6 @@ eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                 print("|cff00FF00[LootDistributer]|r Tracked loot: |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
             end
         end
+        return
     end
 end)
