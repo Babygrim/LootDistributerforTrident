@@ -5,9 +5,30 @@
 ## Version: 1.0
 ## SavedVariables: SoftResSaved, SoftResCSV, SoftResLootedTimestamps, LootWatcherData, LootWatcherGoldGained
 
-init.lua
-ui.lua
-commands.lua
-events.lua
-logic.lua
-popups.lua
+##
+main_init.lua
+main_ui.lua
+main_commands.lua
+main_popups.lua
+
+##
+CSVImport\ui.lua
+CSVImport\core.lua
+CSVImport\events.lua
+CSVImport\commands.lua
+
+##
+Reserves\ui.lua
+Reserves\core.lua
+Reserves\events.lua
+Reserves\commands.lua
+
+##
+LootWatcher\ui.lua
+LootWatcher\core.lua
+LootWatcher\events.lua
+LootWatcher\commands.lua
+
+##
+main_events.lua
+main_logic.lua

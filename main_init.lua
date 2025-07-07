@@ -1,31 +1,39 @@
-local addonName, addonTable = ...
+local LootDistr, LDData = ...
+
+-- Saved Variables
+SoftResSaved = SoftResSaved or {}
+SoftResCSV = SoftResCSV or ""
+SoftResLootedTimestamps = SoftResLootedTimestamps or {}
+LootWatcherData = LootWatcherData or {}
+LootWatcherGoldGained = LootWatcherGoldGained or 0
+RaidGroup = RaidGroup or false
 
 -- Shared Variables
-addonTable.currentSort = { column = "item", ascending = true }
-addonTable.currentLootSort = { column = "time", ascending = false }
-addonTable.playerName = UnitName("player")
-addonTable.reservePlaceholder = "Search reserves..."
-addonTable.lootPlaceholder = "Search loot..."
+LDData.currentSort = { column = "item", ascending = true }
+LDData.currentLootSort = { column = "time", ascending = false }
+LDData.playerName = UnitName("player")
+LDData.reservePlaceholder = "Search reserves..."
+LDData.lootPlaceholder = "Search loot..."
 
 -- UI shared Variables
-addonTable.rowHeight = 20
-addonTable.colWidths = {200, 120, 150, 100}
-addonTable.spacing = 5
-addonTable.leftPadding = 5
-addonTable.headers = {
+LDData.rowHeight = 20
+LDData.colWidths = {200, 120, 150, 100}
+LDData.spacing = 5
+LDData.leftPadding = 5
+LDData.headers = {
     { text = "Item", width = 200, key = "item" },
     { text = "Player", width = 120, key = "name" },
     { text = "Date", width = 150, key = "date" },
     { text = "Tradeable", width = 100, key = "tradeable" },
 }
-addonTable.lootHeaders = {
+LDData.lootHeaders = {
     { text = "Item", width = 250, key = "item" },
     { text = "Player", width = 120, key = "player" },
     { text = "Count", width = 100, key = "count" },
     { text = "Time", width = 100, key = "time" },
 }
 
-addonTable.BossToDungeon = {
+LDData.BossToDungeon = {
     -- Karazhan
     ["Attumen the Huntsman"] = "Karazhan",
     ["Moroes"] = "Karazhan",

@@ -1,12 +1,5 @@
-local addonName, addonTable = ...
-local f = addonTable.main_frame
-
-SoftResSaved = SoftResSaved or {}
-SoftResCSV = SoftResCSV or ""
-SoftResLootedTimestamps = SoftResLootedTimestamps or {}
-LootWatcherData = LootWatcherData or {}
-LootWatcherGoldGained = LootWatcherGoldGained or 0
-RaidGroup = RaidGroup or false
+local LootDistr, LDData = ...
+local f = LDData.main_frame
 
 SLASH_LOOTDISTRIBUTER1 = "/trident"
 SlashCmdList["LOOTDISTRIBUTER"] = function(msg)
@@ -25,12 +18,15 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
         if lootMethod == "master" then
             if masterLooter == 0 then
                 local itemName, itemLink = GetItemInfo(link)
-                if itemLink and type(itemLink) == "string" then
-                    if SoftResSaved[itemName] then
+                local itemID = tonumber(link:match("item:(%d+)"))
+                
+                if itemID and itemLink and type(itemLink) == "string" then
+                    if SoftResSaved[itemID] then
                         local counts = {}
-                        for _, info in ipairs(SoftResSaved[itemName]) do
+                        for _, info in ipairs(SoftResSaved[itemID]) do
                             counts[info.name] = (counts[info.name] or 0) + 1
                         end
+
                         local names = {}
                         for name, count in pairs(counts) do
                             if count >= 2 then
@@ -39,18 +35,22 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
                                 table.insert(names, name)
                             end
                         end
+
                         local msg = "Roll for: " .. itemLink .. " - Reserved by: " .. table.concat(names, ", ")
                         SendChatMessage(msg, "RAID_WARNING")
                     else
                         local msg = "Roll for: " .. itemLink .. " - No soft reserves"
                         SendChatMessage(msg, "RAID_WARNING")
                     end
+                else
+                    print("|cffFF4500[LootDistributer]|r Could not get itemID or link.")
                 end
             else
                 print("|cffFF4500[LootDistributer]|r You are not the loot master.")
             end
         else
-            print("|cffFF4500[LootDistributer]|r Master loot is not enabled. Current loot system: "..lootMethod)
+            print("|cffFF4500[LootDistributer]|r Master loot is not enabled. Current loot system: " .. lootMethod)
         end
     end
 end)
+

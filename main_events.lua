@@ -1,64 +1,13 @@
-local addonName, addonTable = ...
-local f = addonTable.main_frame
+local LootDistr, LDData = ...
+local f = LDData.main_frame
 local LootWatcherActivated = false
 
+f.eventFrame = CreateFrame("Frame")
+f.eventFrame:RegisterEvent("CHAT_MSG_LOOT")
+f.eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
+f.eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 
--- Import CSV click event
-f.importBtn:SetScript("OnClick", function()
-    local text = f.csvEditBox:GetText()
-    if not text or text == "" then
-        print("|cffFF4500[LootDistributer]|r No CSV text to import!")
-        return
-    end
-
-    -- Simple CSV check: first line should contain commas and required headers
-    local firstLine = text:match("([^\r\n]+)")
-    if not firstLine or not firstLine:find(",") then
-        print("|cffFF4500[LootDistributer]|r Not a valid CSV format (missing commas or header row).")
-        return
-    end
-
-    -- Check required columns exist in header
-    local requiredCols = {["Item"] = true, ["ItemId"] = true, ["Name"] = true, ["Date"] = true}
-    local found = {}
-    for col in firstLine:gmatch("([^,]+)") do
-        col = col:match("^%s*(.-)%s*$")
-        if requiredCols[col] then
-            found[col] = true
-        end
-    end
-    for colName, _ in pairs(requiredCols) do
-        if not found[colName] then
-            print("|cffFF4500[LootDistributer]|r CSV is missing required column: |cffffff00" .. colName .. "|r")
-            return
-        end
-    end
-
-    -- If SoftResSaved already has data, confirm overwrite
-    if next(SoftResSaved) ~= nil then
-        StaticPopup_Show(addonName .. "ConfirmOverwrite")
-    else
-        -- No existing data, proceed directly
-        local ok, result = pcall(parseCSV, text)
-        if not ok then
-            print("|cffFF4500[LootDistributer]|r CSV parse error: " .. result)
-            return
-        end
-        SoftResSaved = result
-        SoftResCSV = text
-        print("|cff00FF00[LootDistributer]|r Imported soft reserves!")
-        if f.reservesTab:IsShown() then
-            addonTable.UpdateReservesTable(f.searchBox:GetText())
-        end
-    end
-end)
-
-local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("CHAT_MSG_LOOT")
-eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
-eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
-
-eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
+f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
     if event == "PARTY_LOOT_METHOD_CHANGED" then
         local lootMethod, masterLooter = GetLootMethod()
 
@@ -136,7 +85,7 @@ eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             lwPlayer, lwItemLink = msg:match("^(.+) receives loot: (.+)%.$")
             if not lwPlayer then
                 lwItemLink = msg:match("^You receive loot: (.+)%.$")
-                lwPlayer = addonTable.playerName  -- your player's name variable
+                lwPlayer = LDData.playerName  -- your player's name variable
             end
 
             if lwPlayer and lwItemLink then
@@ -151,8 +100,8 @@ eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                     time = date("%H:%M:%S"),
                 })
 
-                addonTable.TrimLootWatcherData() -- trim old loot records if needed
-                addonTable.UpdateLootWatcherTable(f.lootSearchBox:GetText())
+                LDData.TrimLootWatcherData() -- trim old loot records if needed
+                LDData.UpdateLootWatcherTable(f.lootSearchBox:GetText())
 
                 print("|cff00FF00[LootDistributer]|r Tracked loot: |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
             end
@@ -160,3 +109,21 @@ eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         return
     end
 end)
+
+-- Ticker
+f.tickerFrame = CreateFrame("Frame")
+local elapsed = 0
+
+f.tickerFrame:SetScript("OnUpdate", function(self, delta)
+    elapsed = elapsed + delta
+    if elapsed >= 1 then
+        elapsed = 0
+        if f.reservesTab:IsShown() then
+            LDData.UpdateReservesTable(f.searchBox:GetText())
+        elseif f.lootWatcherTab:IsShown() then
+            LDData.UpdateLootWatcherTable(f.lootSearchBox:GetText())
+        end
+    end
+end)
+
+f.tickerFrame:Hide() -- initially hidden
