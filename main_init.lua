@@ -1,12 +1,18 @@
 local LootDistr, LDData = ...
 
 -- Saved Variables
+-- Reserves + CSVImport
 SoftResSaved = SoftResSaved or {}
 SoftResCSV = SoftResCSV or ""
 SoftResLootedTimestamps = SoftResLootedTimestamps or {}
+-- Loot watcher
 LootWatcherData = LootWatcherData or {}
 LootWatcherGoldGained = LootWatcherGoldGained or 0
-RaidGroup = RaidGroup or false
+-- Loot Roller
+CurrentRollItemID = CurrentRollItemID or nil
+LootRolls = LootRolls or {}
+SRPlayersRollers = SRPlayersRollers or nil
+
 
 -- Shared Variables
 LDData.currentSort = { column = "item", ascending = true }
@@ -31,6 +37,12 @@ LDData.lootHeaders = {
     { text = "Player", width = 120, key = "player" },
     { text = "Count", width = 100, key = "count" },
     { text = "Time", width = 100, key = "time" },
+}
+LDData.lootRollHeaders = {
+    { text = "Player", width = 250, key = "player" },
+    { text = "Class", width = 120, key = "class" },
+    { text = "Roll", width = 100, key = "roll" },
+    { text = "Date", width = 100, key = "date" },
 }
 
 LDData.BossToDungeon = {

@@ -13,8 +13,9 @@ end
 -- Alt+Click announce hook (unchanged)
 hooksecurefunc("HandleModifiedItemClick", function(link)
     local lootMethod, masterLooter = GetLootMethod()
+    srNames = {}
 
-    if IsAltKeyDown() then
+    if IsAltKeyDown() and link then
         if lootMethod == "master" then
             if masterLooter == 0 then
                 local itemName, itemLink, _, ilvl = GetItemInfo(link)
@@ -25,24 +26,28 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
                         local counts = {}
                         for _, info in ipairs(SoftResSaved[itemID]) do
                             counts[info.name] = (counts[info.name] or 0) + 1
+                            source = info.source
                         end
 
-                        local names = {}
+                        
                         for name, count in pairs(counts) do
                             if count >= 2 then
-                                table.insert(names, name .. " (" .. count .. "x)")
+                                table.insert(srNames, name .. " (" .. count .. "x)")
                             else
-                                table.insert(names, name)
+                                table.insert(srNames, name)
                             end
                         end
 
-                        local msg = "Roll for: " .. itemLink .. " - Reserved by: " .. table.concat(names, ", ")
+                        local msg = "Roll for: " .. itemLink .. " - Reserved by: " .. table.concat(srNames, ", ")
                         SendChatMessage(msg, "RAID_WARNING")
+                        LDData.softResRollNames = srNames
+                        ShowLootRollerForItem(link, itemID, source, ilvl)
                     else
                         local msg = "Roll for: " .. itemLink .. " - No soft reserves"
                         SendChatMessage(msg, "RAID_WARNING")
+                        LDData.softResRollNames = srNames
+                        ShowLootRollerForItem(link, itemID, nil, ilvl)
                     end
-                    ShowLootRollerForItem(itemID, itemName, "", ilvl)
                 else
                     print("|cffFF4500[LootDistributer]|r Could not get itemID or link.")
                 end

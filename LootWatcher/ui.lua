@@ -22,7 +22,7 @@ f.lootSearchBox:SetMaxLetters(100)
 f.lootSearchBox:SetScript("OnEscapePressed", function(self)
     self:SetText("")
     self:ClearFocus()
-    LDData.UpdateLootWatcherTable("")
+    UpdateLootWatcherTable("")
 end)
 
 f.lootSearchBox:SetBackdrop({
@@ -38,26 +38,6 @@ f.lootSearchBox:SetBackdropBorderColor(1, 1, 1, 1)
 f.lootSearchBox:SetTextColor(0.8, 0.8, 0.8, 1)
 f.lootSearchBox:SetText(LDData.lootPlaceholder)
 f.lootSearchBox:SetTextInsets(4, 0, 0, 1)
-
-f.lootSearchBox:SetScript("OnEditFocusGained", function(self)
-    if self:GetText() == LDData.lootPlaceholder then
-        self:SetText("")
-        self:SetTextColor(1, 1, 1, 1)
-    end
-    f.lootScroll:SetVerticalScroll(0)
-end)
-f.lootSearchBox:SetScript("OnEditFocusLost", function(self)
-    if self:GetText() == "" then
-        self:SetTextColor(0.8, 0.8, 0.8, 1)
-        self:SetText(LDData.lootPlaceholder)
-        LDData.UpdateLootWatcherTable("")
-    end
-end)
-f.lootSearchBox:SetScript("OnTextChanged", function(self)
-    local txt = self:GetText()
-    if txt == LDData.lootPlaceholder then txt = "" end
-    LDData.UpdateLootWatcherTable(txt)
-end)
 
 -- Stats Label (Gold Tracker)
 f.lootStatsLabel = f.lootWatcherTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -75,8 +55,6 @@ f.lootTableContainer:SetSize(570, 250)
 f.lootScroll:SetScrollChild(f.lootTableContainer)
 
 -- Headers
-
-
 f.lootHeader = CreateFrame("Frame", LootDistr .. "LootHeader", f.lootWatcherTab)
 f.lootHeader:SetSize(570, 20)
 f.lootHeader:SetPoint("TOPLEFT", f.lootWatcherTab, "TOPLEFT", 10, -40)
@@ -90,28 +68,6 @@ f.lootHeader:SetBackdrop({
 })
 
 local lootHeaderButtons = {}
-
-local function OnLootHeaderClick(self)
-    local key = self.sortKey
-    if LDData.currentLootSort.column == key then
-        LDData.currentLootSort.ascending = not LDData.currentLootSort.ascending
-    else
-        LDData.currentLootSort.column = key
-        LDData.currentLootSort.ascending = true
-    end
-    LDData.UpdateLootWatcherTable(f.lootSearchBox:GetText())
-end
-
-local function OnLootHeaderEnter(self)
-    self.text:SetTextColor(1, 1, 0, 1)
-    self:SetBackdropColor(0.3, 0.3, 0.3, 0.5)
-end
-
-local function OnLootHeaderLeave(self)
-    self.text:SetTextColor(1, 1, 1, 1)
-    self:SetBackdropColor(0, 0, 0, 0)
-end
-
 local xOff = 0
 for i, header in ipairs(LDData.lootHeaders) do
     local btn = CreateFrame("Button", nil, f.lootHeader)
@@ -130,9 +86,9 @@ for i, header in ipairs(LDData.lootHeaders) do
     btn.text:SetText(header.text)
     btn.text:SetTextColor(1, 1, 1, 1)
 
-    btn:SetScript("OnClick", OnLootHeaderClick)
-    btn:SetScript("OnEnter", OnLootHeaderEnter)
-    btn:SetScript("OnLeave", OnLootHeaderLeave)
+    btn:SetScript("OnClick", LDData.OnLootHeaderClickWatcher)
+    btn:SetScript("OnEnter", LDData.OnLootHeaderEnter)
+    btn:SetScript("OnLeave", LDData.OnLootHeaderLeave)
 
     lootHeaderButtons[i] = btn
     xOff = xOff + header.width

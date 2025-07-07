@@ -103,7 +103,14 @@ function parseCSV(data)
     end
 
     local colIndices = {}
-    local requiredCols = {["Item"] = true, ["ItemId"] = true, ["Name"] = true, ["Date"] = true, ["Class"] = true}
+    local requiredCols = {
+        ["Item"] = true, 
+        ["ItemId"] = true, 
+        ["From"] = true, 
+        ["Name"] = true, 
+        ["Date"] = true, 
+        ["Class"] = true
+    }
 
     for i, colName in ipairs(headers) do
         if requiredCols[colName] then
@@ -161,6 +168,7 @@ function parseCSV(data)
             local itemid = tonumber(cols[colIndices["ItemId"]])
             local raider = cols[colIndices["Name"]]
             local date = cols[colIndices["Date"]]
+            local source = cols[colIndices["From"]]
             local class = cols[colIndices["Class"]]
 
             if itemid then
@@ -168,6 +176,7 @@ function parseCSV(data)
                 table.insert(reserves[itemid], {
                     name = raider or "Unknown",
                     date = date or "-",
+                    source = source or "",
                     class = class or "Unknown",
                 })
             end

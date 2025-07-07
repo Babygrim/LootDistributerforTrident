@@ -27,10 +27,10 @@ f.searchBox:SetText("")
 f.searchBox:SetScript("OnEscapePressed", function(self)
     self:SetText("")
     self:ClearFocus()
-    LDData.UpdateReservesTable("")
+    UpdateReservesTable("")
 end)
 f.searchBox:SetScript("OnTextChanged", function(self)
-    LDData.UpdateReservesTable(self:GetText())
+    UpdateReservesTable(self:GetText())
 end)
 
 -- Clean single backdrop - no InputBoxTemplate
@@ -64,22 +64,6 @@ f.reservesTableContainer:SetPoint("TOPLEFT", f.reservesScroll, "TOPLEFT", 0, 0)
 f.reservesTableContainer:SetSize(570, 250)
 f.reservesScroll:SetScrollChild(f.reservesTableContainer)
 
-f.searchBox:SetScript("OnEditFocusGained", function(self)
-    if self:GetText() == LDData.reservePlaceholder then
-        self:SetText("")
-        self:SetTextColor(1, 1, 1, 1)
-    end
-    f.reservesScroll:SetVerticalScroll(0)
-end)
-
-f.searchBox:SetScript("OnEditFocusLost", function(self)
-    if self:GetText() == "" then
-        self:SetTextColor(0.8, 0.8, 0.8, 1)
-        self:SetText(LDData.reservePlaceholder)
-        LDData.UpdateReservesTable("")
-    end
-end)
-
 
 -- Container for header buttons
 f.reservesHeader = CreateFrame("Frame", LootDistr .. "ReservesHeader", f.reservesTab)
@@ -87,30 +71,6 @@ f.reservesHeader:SetSize(570, LDData.rowHeight)
 f.reservesHeader:SetPoint("TOPLEFT", f.reservesTab, "TOPLEFT", 10, -40) -- aligns just above scrollframe
 
 local headerButtons = {}
-
-local function OnHeaderClick(self)
-    local key = self.sortKey
-    if LDData.currentSort.column == key then
-        LDData.currentSort.ascending = not LDData.currentSort.ascending
-    else
-        LDData.currentSort.column = key
-        LDData.currentSort.ascending = true
-    end
-    LDData.UpdateReservesTable(f.searchBox:GetText())
-end
-
-
-local function OnHeaderEnter(self)
-    self.text:SetTextColor(1, 1, 0, 1) -- yellow highlight on hover
-    self:SetBackdropColor(0.3, 0.3, 0.3, 0.5)
-end
-
-local function OnHeaderLeave(self)
-    self.text:SetTextColor(1, 1, 1, 1) -- white normal color
-    self:SetBackdropColor(0, 0, 0, 0)
-end
-
-
 local xOffset = 0
 for i, header in ipairs(LDData.headers) do
     local btn = CreateFrame("Button", nil, f.reservesHeader)
@@ -130,9 +90,9 @@ for i, header in ipairs(LDData.headers) do
     btn.text:SetText(header.text)
     btn.text:SetTextColor(1, 1, 1, 1)
 
-    btn:SetScript("OnClick", OnHeaderClick)
-    btn:SetScript("OnEnter", OnHeaderEnter)
-    btn:SetScript("OnLeave", OnHeaderLeave)
+    btn:SetScript("OnClick", LDData.OnLootHeaderClickReserves)
+    btn:SetScript("OnEnter", LDData.OnLootHeaderEnter)
+    btn:SetScript("OnLeave", LDData.OnLootHeaderLeave)
 
     headerButtons[i] = btn
     xOffset = xOffset + header.width

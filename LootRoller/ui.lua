@@ -9,20 +9,65 @@ f.lootRollerTab:Hide()
 
 -- Item Icon
 f.lootRollerItemIcon = f.lootRollerTab:CreateTexture(nil, "ARTWORK")
-f.lootRollerItemIcon:SetSize(40,40)
+f.lootRollerItemIcon:SetSize(60,60)
 f.lootRollerItemIcon:SetPoint("TOPLEFT", 10, -10)
+f.lootRollerItemIcon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 
--- Item Info Text (name, id, source, ilvl)
-f.lootRollerItemInfo = f.lootRollerTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-f.lootRollerItemInfo:SetPoint("LEFT", f.lootRollerItemIcon, "RIGHT", 10, 0)
-f.lootRollerItemInfo:SetJustifyH("LEFT")
-f.lootRollerItemInfo:SetHeight(40)
-f.lootRollerItemInfo:SetWidth(f.lootRollerTab:GetWidth() - 70)
+-- Create a clickable item name button frame (with tooltip)
+f.lootRollerItemNameFrame = CreateFrame("Button", nil, f.lootRollerTab)
+f.lootRollerItemNameFrame:SetPoint("TOPLEFT", f.lootRollerItemIcon, "TOPRIGHT", 5, 0)
+f.lootRollerItemNameFrame:SetSize(250, 15)
+f.lootRollerItemNameFrame:EnableMouse(true)
+f.lootRollerItemNameFrame:SetFrameLevel(f.lootRollerItemNameFrame:GetFrameLevel() + 1)
+f.lootRollerItemNameFrame:SetFrameStrata("HIGH")
+
+-- Set tooltip behavior
+f.lootRollerItemNameFrame:SetScript("OnClick", function(self)
+    if self.link then
+        HandleModifiedItemClick(self.link)
+    end
+end)
+
+f.lootRollerItemNameFrame:SetScript("OnEnter", function(self)
+    if self.link then
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetHyperlink(self.link)
+        GameTooltip:Show()
+    end
+end)
+
+f.lootRollerItemNameFrame:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+end)
+
+-- FontString: Item Name (linked)
+f.lootRollerItemNameText = f.lootRollerItemNameFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+f.lootRollerItemNameText:SetPoint("TOPLEFT", f.lootRollerItemNameFrame, "TOPLEFT", 0, 0)
+f.lootRollerItemNameText:SetJustifyH("LEFT")
+f.lootRollerItemNameText:SetWidth(250)
+
+-- FontString: ID
+f.lootRollerItemIDText = f.lootRollerTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+f.lootRollerItemIDText:SetPoint("TOPLEFT", f.lootRollerItemNameText, "BOTTOMLEFT", 0, -2)
+f.lootRollerItemIDText:SetJustifyH("LEFT")
+f.lootRollerItemIDText:SetWidth(300)
+
+-- FontString: Source
+f.lootRollerItemSourceText = f.lootRollerTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+f.lootRollerItemSourceText:SetPoint("TOPLEFT", f.lootRollerItemIDText, "BOTTOMLEFT", 0, -2)
+f.lootRollerItemSourceText:SetJustifyH("LEFT")
+f.lootRollerItemSourceText:SetWidth(300)
+
+-- FontString: iLvl
+f.lootRollerItemIlvlText = f.lootRollerTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+f.lootRollerItemIlvlText:SetPoint("TOPLEFT", f.lootRollerItemSourceText, "BOTTOMLEFT", 0, -2)
+f.lootRollerItemIlvlText:SetJustifyH("LEFT")
+f.lootRollerItemIlvlText:SetWidth(300)
 
 -- Scroll Frame for rolls table
 f.scrollFrame = CreateFrame("ScrollFrame", LootDistr .. "LootRollerScrollFrame", f.lootRollerTab, "UIPanelScrollFrameTemplate")
-f.scrollFrame:SetPoint("TOPLEFT", f.lootRollerItemIcon, "BOTTOMLEFT", 0, -10)
-f.scrollFrame:SetPoint("BOTTOMRIGHT", f.lootRollerTab, "BOTTOMRIGHT", -30, 10)
+f.scrollFrame:SetPoint("TOPLEFT", 0, -110)
+f.scrollFrame:SetPoint("BOTTOMRIGHT", -25, 40)
 
 -- Scroll content (table container)
 f.scrollContent = CreateFrame("Frame", LootDistr .. "LootRollerScrollContent", f.scrollFrame)
@@ -30,68 +75,48 @@ f.scrollContent:SetSize(f.scrollFrame:GetWidth(), 300)
 f.scrollFrame:SetScrollChild(f.scrollContent)
 
 -- Column Headers
-local headers = {
-    { name = "Player", x = 10, width = 120 },
-    { name = "Class",  x = 140, width = 100 },
-    { name = "Roll",   x = 250, width = 80 },
-    { name = "Date",   x = 340, width = 160 },
-}
+f.lootRollHeader = CreateFrame("Frame", LootDistr .. "LootRollHeader", f.lootRollerTab)
+f.lootRollHeader:SetSize(570, 20)
+f.lootRollHeader:SetPoint("TOPLEFT", f.lootRollerTab, "TOPLEFT", 10, -85)
+f.lootRollHeader:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    edgeSize = 8,
+    tile = true,
+    tileSize = 16,
+    insets = { left = 3, right = 3, top = 3, bottom = 3 },
+})
 
-local lootRollerHeaders = {}
+local lootRollHeaderButtons = {}
+local xOff = 0
+for i, header in ipairs(LDData.lootRollHeaders) do
+    local btn = CreateFrame("Button", nil, f.lootRollHeader)
+    btn:SetSize(header.width, 20)
+    btn:SetPoint("LEFT", f.lootRollHeader, "LEFT", xOff, 0)
+    btn.sortKey = header.key
+    btn:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 8,
+    })
+    btn:SetBackdropColor(0, 0, 0, 0)
 
-for i, header in ipairs(headers) do
-    local fontString = f.scrollContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    fontString:SetPoint("TOPLEFT", header.x, -10)
-    fontString:SetText(header.name)
-    lootRollerHeaders[i] = fontString
+    btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    btn.text:SetPoint("CENTER", 0, 0)
+    btn.text:SetText(header.text)
+    btn.text:SetTextColor(1, 1, 1, 1)
+
+    btn:SetScript("OnEnter", LDData.OnLootHeaderEnter)
+    btn:SetScript("OnLeave", LDData.OnLootHeaderLeave)
+
+    lootRollHeaderButtons[i] = btn
+    xOff = xOff + header.width
 end
 
--- Table Row Template
-lootRollerRows = {}
-function CreateRollRow(index)
-    local row = CreateFrame("Frame", nil, f.scrollContent)
-    row:SetSize(f.scrollContent:GetWidth(), 20)
-    row:SetPoint("TOPLEFT", 0, -30 - (index - 1) * 20)
-
-    row.player = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
-    row.player:SetPoint("LEFT", 10, 0)
-    row.player:SetWidth(120)
-
-    row.class = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
-    row.class:SetPoint("LEFT", 140, 0)
-    row.class:SetWidth(100)
-
-    row.roll = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
-    row.roll:SetPoint("LEFT", 250, 0)
-    row.roll:SetWidth(80)
-
-    row.date = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
-    row.date:SetPoint("LEFT", 340, 0)
-    row.date:SetWidth(160)
-
-    return row
-end
-
--- Function to populate and refresh the table
-function LDData:UpdateLootRollerTable(data)
-    -- Sort by roll descending
-    table.sort(data, function(a, b) return a.roll > b.roll end)
-
-    -- Clear previous rows
-    for _, row in ipairs(lootRollerRows) do
-        row:Hide()
-    end
-
-    -- Show new rows
-    for i, entry in ipairs(data) do
-        if not lootRollerRows[i] then
-            lootRollerRows[i] = CreateRollRow(i)
-        end
-        local row = lootRollerRows[i]
-        row.player:SetText(entry.player or "")
-        row.class:SetText(entry.class or "")
-        row.roll:SetText(tostring(entry.roll or ""))
-        row.date:SetText(entry.date or "")
-        row:Show()
-    end
-end
+f.lootRollEndBtn = CreateFrame("Button", LootDistr .. "LootRollEndBtn", f.lootRollerTab, "GameMenuButtonTemplate")
+f.lootRollEndBtn:SetSize(120, 30)
+f.lootRollEndBtn:SetPoint("BOTTOMLEFT", 9, 0)
+f.lootRollEndBtn:SetText("End Roll")
+f.lootRollEndBtn:SetScript("OnClick", function()
+    StaticPopup_Show(LootDistr .. "ConfirmEndLootRoller")
+end)

@@ -3,34 +3,122 @@ local f = LDData.main_frame
 
 local ROW_HEIGHT = 20
 
--- Rows cache
-local rollRows = {}
-
 -- Current displayed item data
-local currentLootRollItemId = nil
-local currentLootRollItemName = nil
-local currentLootRollItemSource = nil
-local currentLootRollItemIlvl = nil
-
--- Table to store roll data
-local lootRolls = {}  -- Format: [playerName] = {roll=98, class="Mage", date="2025-07-07"}
-
--- Current soft reserve players for this item: playerName -> true
-local lootRollerSoftReservePlayers = nil
+LDData.currentLootRollItemId = CurrentRollItemID
+LDData.currentLootRollItemName = "Unknown"
+LDData.currentLootRollItemSource = "Unknown"
+LDData.currentLootRollItemIlvl = "Unknown"
 
 -- Function to update item info text and icon
 function UpdateLootRollerItemInfo()
-    if not currentLootRollItemId then
-        f.lootRollerItemIcon:SetTexture(nil)
-        f.lootRollerItemInfo:SetText("")
-        return
-    end
-    local icon = GetItemIcon(currentLootRollItemId)
+
+    local itemId = LDData.currentLootRollItemId
+    local itemName = LDData.currentLootRollItemName
+    local itemSource = LDData.currentLootRollItemSource
+    local itemIlvl = LDData.currentLootRollItemIlvl
+
+    local icon = GetItemIcon(itemId)
     f.lootRollerItemIcon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-    local sourceText = currentLootRollItemSource and ("Source: " .. currentLootRollItemSource) or ""
-    local ilvlText = currentLootRollItemIlvl and ("Item Level: " .. currentLootRollItemIlvl) or ""
-    f.lootRollerItemInfo:SetText(string.format("%s\nID: %d\n%s\n%s", currentLootRollItemName or "Unknown", currentLootRollItemId, sourceText, ilvlText))
+
+    if itemId then
+        local link = select(2, GetItemInfo(itemId))
+    else
+        local link = nil
+    end
+    
+    if link then
+        f.lootRollerItemNameText:SetText("Item: "..link)
+        f.lootRollerItemNameFrame.link = link
+    else
+        f.lootRollerItemNameText:SetText("Item: "..itemName or "Unknown")
+        f.lootRollerItemNameFrame.link = nil
+    end
+
+    f.lootRollerItemIDText:SetText("Item ID: " .. (itemId or "Unknown"))
+    f.lootRollerItemSourceText:SetText("Item Source: " .. (itemSource or "Unknown"))
+    f.lootRollerItemIlvlText:SetText("Item Level: " .. (itemIlvl or "Unknown"))
 end
+
+function CreateRollerRow(index)
+    local row = CreateFrame("Frame", nil, f.scrollContent)
+    row:SetSize(570, LDData.rowHeight)
+
+    row:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    row:SetBackdropColor(0, 0, 0, 0)
+
+    row:SetScript("OnEnter", LDData.OnLootHeaderEnter)
+    row:SetScript("OnLeave", LDData.OnLootHeaderLeave)
+
+    local xOffset = 10
+    row.cells = {}
+
+    for i, header in ipairs(LDData.lootRollHeaders) do
+        local cell = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        cell:SetPoint("LEFT", row, "LEFT", xOffset, 0)
+        cell:SetWidth(header.width)
+        cell:SetJustifyH("CENTER")
+        row[header.key .. "Text"] = cell
+        row.cells[i] = cell
+
+        xOffset = xOffset + header.width
+    end
+
+    -- For hover effect coloring
+    row.text = row.playerText or row["playerText"]
+
+    return row
+end
+
+
+
+-- Rows cache
+local rollRows = {}
+
+-- Function to populate and refresh the table
+function UpdateLootRollerTable(data)
+    -- Sort by roll descending
+    table.sort(data, function(a, b) return a.roll > b.roll end)
+
+    -- Clear previous rows
+    for _, row in ipairs(rollRows) do
+        row:Hide()
+    end
+
+    -- Show new rows
+    for i, entry in ipairs(data) do
+        if not rollRows[i] then
+            rollRows[i] = CreateRollerRow(i)
+        end
+        local row = rollRows[i]
+        row.player:SetText(entry.player or "")
+        row.class:SetText(entry.class or "")
+        row.roll:SetText(tostring(entry.roll or ""))
+        row.date:SetText(entry.date or "")
+        row:Show()
+    end
+end
+
+-- Assumes `reserves` is globally available or passed in
+function GetSoftReservePlayers(itemId)
+    local srPlayers = {}
+    local found = false
+
+    local srList = SoftResSaved and SoftResSaved[itemId]
+    if srList then
+        for _, entry in ipairs(srList) do
+            if entry.name then
+                srPlayers[entry.name] = true
+                found = true
+            end
+        end
+    end
+
+    return found and srPlayers or nil
+end
+
 
 -- Function to refresh rolls table
 function RefreshLootRollerTable()
@@ -39,7 +127,7 @@ function RefreshLootRollerTable()
     end
 
     local sortedRolls = {}
-    for playerName, rollData in pairs(lootRolls) do
+    for playerName, rollData in pairs(LootRolls) do
         table.insert(sortedRolls, {
             player = playerName,
             roll = rollData.roll,
@@ -52,113 +140,112 @@ function RefreshLootRollerTable()
     for i, entry in ipairs(sortedRolls) do
         local row = rollRows[i]
         if not row then
-            row = CreateFrame("Frame", nil, f.scrollContent)
-            row:SetSize(f.scrollContent:GetWidth(), ROW_HEIGHT)
-
-            row.playerText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            row.playerText:SetPoint("LEFT", 10, 0)
-            row.playerText:SetWidth(120)
-
-            row.classText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            row.classText:SetPoint("LEFT", 140, 0)
-            row.classText:SetWidth(100)
-
-            row.rollText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            row.rollText:SetPoint("LEFT", 250, 0)
-            row.rollText:SetWidth(60)
-
-            row.dateText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            row.dateText:SetPoint("LEFT", 320, 0)
-            row.dateText:SetWidth(120)
-
+            row = CreateRollerRow(i)
             rollRows[i] = row
         end
 
-        row:SetPoint("TOPLEFT", 0, -10 - (i - 1) * ROW_HEIGHT)
+        row:SetPoint("TOPLEFT", f.scrollContent, "TOPLEFT", 0, -(i - 1) * LDData.rowHeight)
         row.playerText:SetText(entry.player)
+        if SRPlayersRollers and SRPlayersRollers[entry.player] then
+            row.playerText:SetTextColor(0, 1, 0) -- green
+        else
+            row.playerText:SetTextColor(1, 1, 1) -- white
+        end
+        
         row.classText:SetText(entry.class)
         row.rollText:SetText(tostring(entry.roll))
         row.dateText:SetText(entry.date)
         row:Show()
     end
 
-    f.scrollContent:SetHeight(math.max(#sortedRolls * ROW_HEIGHT + 20, f.scrollFrame:GetHeight()))
-end
-
--- Function to get soft reserve players for an itemId
-function GetSoftReservePlayers(itemId)
-    local srPlayers = {}
-    local hasSR = false
-    for playerName, items in pairs(softReserves or {}) do
-        if items[itemId] then
-            srPlayers[playerName] = true
-            hasSR = true
-        end
+    for i = #sortedRolls + 1, #rollRows do
+        rollRows[i]:Hide()
     end
-    return hasSR and srPlayers or nil
+
+    f.scrollContent:SetHeight(math.max(#sortedRolls * LDData.rowHeight + 20, f.scrollFrame:GetHeight()))
 end
 
--- Dummy example data for testing when tab opened manually
-function ShowDummyLootRollerData()
-    currentLootRollItemId = 99999
-    currentLootRollItemName = "Example Sword of Testing"
-    currentLootRollItemSource = "Dummy Source"
-    currentLootRollItemIlvl = 123
 
-    lootRollerSoftReservePlayers = {
-        ["PlayerOne"] = true,
-        ["PlayerTwo"] = true,
-        ["PlayerThree"] = true,
-    }
-
-    lootRolls = {
-        ["Killum"] = { class = "Warrior", roll = 95, date = "2025-07-07" },
-        ["Felina"] = { class = "Priest",  roll = 88, date = "2025-07-07" },
-    }
-
-    UpdateLootRollerItemInfo()
-    RefreshLootRollerTable()
-end
 
 -- Show Loot Roller UI for real item or dummy
-function ShowLootRollerForItem(itemId, itemName, itemSource, itemIlvl)
-    if not itemId then
-        ShowDummyLootRollerData()
-        return
-    end
-
-    currentLootRollItemId = itemId
-    currentLootRollItemName = itemName
-    currentLootRollItemSource = itemSource
-    currentLootRollItemIlvl = itemIlvl
-
-    lootRolls = {}
-    lootRollerSoftReservePlayers = GetSoftReservePlayers(itemId)
+function ShowLootRollerForItem(link, itemID, itemSource, itemIlvl)
+    LDData.currentLootRollItemId = itemID
+    LDData.currentLootRollItemName = link
+    LDData.currentLootRollItemSource = itemSource
+    LDData.currentLootRollItemIlvl = itemIlvl
 
     ShowTab(4)
     UpdateLootRollerItemInfo()
     RefreshLootRollerTable()
 end
 
--- Function to handle new roll
-function HandleNewRoll(itemId, playerName, roll)
-    if not currentLootRollItemId or itemId ~= currentLootRollItemId then return end
+function HandleNewRoll(itemID, playerName, roll)
+    if not LDData.currentLootRollItemId or itemID ~= LDData.currentLootRollItemId then return end
 
-    if lootRollerSoftReservePlayers and next(lootRollerSoftReservePlayers) then
-        if not lootRollerSoftReservePlayers[playerName] then return end
+    -- Fetch SR players for current item (once per item)
+    if SRPlayersRollers == nil then
+        SRPlayersRollers = GetSoftReservePlayers(itemID)
     end
 
-    local prev = lootRolls[playerName]
-    if not prev or roll > prev.roll then
-        local _, class = UnitClass(playerName)
-        lootRolls[playerName] = {
-            roll = roll,
-            class = class or "UNKNOWN",
-            date = date("%Y-%m-%d")
-        }
-        RefreshLootRollerTable()
+    -- Determine SR count for player
+    local srCount = 0
+    if SRPlayersRollers then
+        for _, entry in ipairs(SoftResSaved[itemID] or {}) do
+            if entry.name == playerName then
+                srCount = srCount + 1
+            end
+        end
+        -- If they didn't SR at all, reject
+        if srCount == 0 then return end
+    else
+        -- No SR list at all → treat as non-SR item
+        srCount = 0
+    end
+
+    local prev = LootRolls[playerName]
+
+    -- No SR (srCount == 0): accept only first roll
+    if srCount == 0 then
+        if not prev then
+            local _, class = UnitClass(playerName)
+            LootRolls[playerName] = {
+                roll = roll,
+                class = class or "UNKNOWN",
+                date = date("%Y-%m-%d")
+            }
+            RefreshLootRollerTable()
+        end
+        return
+    end
+
+    -- SR == 1: accept only first roll
+    if srCount == 1 then
+        if not prev then
+            local _, class = UnitClass(playerName)
+            LootRolls[playerName] = {
+                roll = roll,
+                class = class or "UNKNOWN",
+                date = date("%Y-%m-%d")
+            }
+            RefreshLootRollerTable()
+        end
+        return
+    end
+
+    -- SR >= 2: accept highest of multiple rolls
+    if srCount >= 2 then
+        if not prev or roll > prev.roll then
+            local _, class = UnitClass(playerName)
+            LootRolls[playerName] = {
+                roll = roll,
+                class = class or "UNKNOWN",
+                date = date("%Y-%m-%d")
+            }
+            RefreshLootRollerTable()
+        end
+        return
     end
 end
 
--- Make available globally
+-- GLOBALS
 LDData.HandleNewRoll = HandleNewRoll

@@ -70,7 +70,7 @@ function SortLootData()
     end)
 end
 
-function LDData.TrimLootWatcherData()
+function TrimLootWatcherData()
     local totalCount = 0
     for _, entry in ipairs(LootWatcherData) do
         totalCount = totalCount + (entry.count or 1)
@@ -145,12 +145,13 @@ function UpdateLootWatcherTable(filterText)
         local c = LootWatcherGoldGained % 100
 
         f.lootStatsLabel:SetText(
-            string.format("Raid: %s  |  Gold: |cffffff00%d|r g  |cffc7c7cf%d|r s  |cffeda55f%d|r c", GuessMostFrequentDungeon(SoftResCSV) or "Unknown", g, s, c)
+            string.format("Raid: %s  |  Gold: |cffffff00%d|r g  |cffc7c7cf%d|r s  |cffeda55f%d|r c",
+                GuessMostFrequentDungeon(SoftResCSV) or "Unknown", g, s, c)
         )
     else
-        f.lootStatsLabel:SetText("Raid: %s  |  Gold: 0", GuessMostFrequentDungeon(SoftResCSV) or "Unknown")
+        f.lootStatsLabel:SetText(
+            string.format("Raid: %s  |  Gold: 0",
+                GuessMostFrequentDungeon(SoftResCSV) or "Unknown")
+        )
     end
 end
-
--- GLOBALS
-LDData.UpdateLootWatcherTable = UpdateLootWatcherTable

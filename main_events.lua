@@ -59,26 +59,23 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         end
         
         if GetNumRaidMembers() > 0 then
-            -- Try match the "You receive loot:" or "You share the loot of" patterns
-            local lootStr = msg:match("^You receive loot: (.+)%.$") or msg:match("^You share the loot of (.+)%.$")
+            -- print(msg:find("Your share of the loot is"))
+            if msg:find("Your share of the loot is") then
+                local gold = tonumber(msg:match("(%d+)%s*gold")) or 0
+                local silver = tonumber(msg:match("(%d+)%s*silver")) or 0
+                local copper = tonumber(msg:match("(%d+)%s*copper")) or 0
+                local total = gold * 10000 + silver * 100 + copper
+                if total > 0 then
+                    LootWatcherGoldGained = (LootWatcherGoldGained or 0) + total
         
-            if not lootStr then
-                -- Try match "Your share of the loot is ..."
-                lootStr = msg:match("^Your share of the loot is (.+)%.$")
-            end
-        
-            if lootStr then
-                local copper = 0
-                local g = lootStr:match("(%d+) Gold")
-                local s = lootStr:match("(%d+) Silver")
-                local c = lootStr:match("(%d+) Copper")
-                if g then copper = copper + tonumber(g) * 10000 end
-                if s then copper = copper + tonumber(s) * 100 end
-                if c then copper = copper + tonumber(c) end
-                if copper > 0 then
-                    LootWatcherGoldGained = LootWatcherGoldGained + copper
-                    return
+                    print(string.format("You received %dg %ds %dc. Total: %dg %ds %dc",
+                        gold, silver, copper,
+                        math.floor(LootWatcherGoldGained / 10000),
+                        math.floor((LootWatcherGoldGained % 10000) / 100),
+                        LootWatcherGoldGained % 100
+                    ))
                 end
+                UpdateLootWatcherTable(f.lootSearchBox:GetText())
             end
 
             local lwPlayer, lwItemLink
@@ -100,8 +97,8 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                     time = date("%H:%M:%S"),
                 })
 
-                LDData.TrimLootWatcherData() -- trim old loot records if needed
-                LDData.UpdateLootWatcherTable(f.lootSearchBox:GetText())
+                TrimLootWatcherData() -- trim old loot records if needed
+                UpdateLootWatcherTable(f.lootSearchBox:GetText())
 
                 print("|cff00FF00[LootDistributer]|r Tracked loot: |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
             end
@@ -119,9 +116,9 @@ f.tickerFrame:SetScript("OnUpdate", function(self, delta)
     if elapsed >= 1 then
         elapsed = 0
         if f.reservesTab:IsShown() then
-            LDData.UpdateReservesTable(f.searchBox:GetText())
+            UpdateReservesTable(f.searchBox:GetText())
         elseif f.lootWatcherTab:IsShown() then
-            LDData.UpdateLootWatcherTable(f.lootSearchBox:GetText())
+            UpdateLootWatcherTable(f.lootSearchBox:GetText())
         end
     end
 end)

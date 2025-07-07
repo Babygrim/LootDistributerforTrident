@@ -1,9 +1,9 @@
 local LootDistr, LDData = ...
 local f = LDData.main_frame
 
-for k, v in pairs(f) do
-    print("f." .. k, v)
-end
+-- for k, v in pairs(f) do
+--     print("f." .. k, v)
+-- end
 
 
 function HideAllTabs()
@@ -45,7 +45,6 @@ function ShowTab(index)
         f.tickerFrame:Show()
     elseif index == 4 then
         f:Show()
-        ShowDummyLootRollerData()
         f.lootRollerTab:Show()
         f.lootWatcherTab:Hide()
         f.importBtn:Hide()
@@ -56,20 +55,6 @@ function ShowTab(index)
         f.tickerFrame:Hide()
     end
 end
-
-
-function OnTabClick(self)
-    local index = self.index
-    ShowTab(index)
-    for i, tab in ipairs(tabs) do
-        if i == index then
-            tab:LockHighlight()
-        else
-            tab:UnlockHighlight()
-        end
-    end
-end
-
 
 function CreateTab(name, index)
     local tab = CreateFrame("Button", LootDistr .. "Tab" .. index, f)
@@ -104,23 +89,7 @@ function CreateTab(name, index)
 
     tab.index = index
 
-    tab:SetScript("OnClick", function()
-        ShowTab(index)
-        for i, t in ipairs(tabs) do
-            if i == index then
-                t.text:SetTextColor(1, 0.82, 0)
-                t.left:SetVertexColor(1, 0.82, 0)
-                t.middle:SetVertexColor(1, 0.82, 0)
-                t.right:SetVertexColor(1, 0.82, 0)
-            else
-                t.text:SetTextColor(0.8, 0.8, 0.8)
-                t.left:SetVertexColor(1, 1, 1)
-                t.middle:SetVertexColor(1, 1, 1)
-                t.right:SetVertexColor(1, 1, 1)
-            end
-        end
-    end)
-
+    tab:SetScript("OnClick", LDData.OnTabClick)
     return tab
 end
 

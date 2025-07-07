@@ -171,6 +171,3 @@ function UpdateReservesTable(filterText)
         totalReserves
     ))
 end
-
--- GLOBALS
-LDData.UpdateReservesTable = UpdateReservesTable
