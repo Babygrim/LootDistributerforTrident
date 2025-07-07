@@ -5,6 +5,7 @@ local f = LDData.main_frame
 f.lootRollerTab = CreateFrame("Frame", LootDistr .. "LootRollerTab", f)
 f.lootRollerTab:SetPoint("TOPLEFT", 10, -70)
 f.lootRollerTab:SetPoint("BOTTOMRIGHT", -10, 60)
+f.lootRollerTab:Hide()
 
 -- Item Icon
 f.lootRollerItemIcon = f.lootRollerTab:CreateTexture(nil, "ARTWORK")
@@ -28,16 +29,69 @@ f.scrollContent = CreateFrame("Frame", LootDistr .. "LootRollerScrollContent", f
 f.scrollContent:SetSize(f.scrollFrame:GetWidth(), 300)
 f.scrollFrame:SetScrollChild(f.scrollContent)
 
+-- Column Headers
+local headers = {
+    { name = "Player", x = 10, width = 120 },
+    { name = "Class",  x = 140, width = 100 },
+    { name = "Roll",   x = 250, width = 80 },
+    { name = "Date",   x = 340, width = 160 },
+}
 
--- Header Labels
-f.headerRoll = f.scrollContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-f.headerRoll:SetPoint("TOPLEFT", 10, -10)
-f.headerRoll:SetText("Roll")
+local lootRollerHeaders = {}
 
-f.headerPlayer = f.scrollContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-f.headerPlayer:SetPoint("TOPLEFT", 80, -10)
-f.headerPlayer:SetText("Player")
+for i, header in ipairs(headers) do
+    local fontString = f.scrollContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    fontString:SetPoint("TOPLEFT", header.x, -10)
+    fontString:SetText(header.name)
+    lootRollerHeaders[i] = fontString
+end
 
-f.headerNote = f.scrollContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-f.headerNote:SetPoint("TOPLEFT", 250, -10)
-f.headerNote:SetText("Note")
+-- Table Row Template
+lootRollerRows = {}
+function CreateRollRow(index)
+    local row = CreateFrame("Frame", nil, f.scrollContent)
+    row:SetSize(f.scrollContent:GetWidth(), 20)
+    row:SetPoint("TOPLEFT", 0, -30 - (index - 1) * 20)
+
+    row.player = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+    row.player:SetPoint("LEFT", 10, 0)
+    row.player:SetWidth(120)
+
+    row.class = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+    row.class:SetPoint("LEFT", 140, 0)
+    row.class:SetWidth(100)
+
+    row.roll = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+    row.roll:SetPoint("LEFT", 250, 0)
+    row.roll:SetWidth(80)
+
+    row.date = row:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+    row.date:SetPoint("LEFT", 340, 0)
+    row.date:SetWidth(160)
+
+    return row
+end
+
+-- Function to populate and refresh the table
+function LDData:UpdateLootRollerTable(data)
+    -- Sort by roll descending
+    table.sort(data, function(a, b) return a.roll > b.roll end)
+
+    -- Clear previous rows
+    for _, row in ipairs(lootRollerRows) do
+        row:Hide()
+    end
+
+    -- Show new rows
+    for i, entry in ipairs(data) do
+        if not lootRollerRows[i] then
+            lootRollerRows[i] = CreateRollRow(i)
+        end
+        local row = lootRollerRows[i]
+        row.player:SetText(entry.player or "")
+        row.class:SetText(entry.class or "")
+        row.roll:SetText(tostring(entry.roll or ""))
+        row.date:SetText(entry.date or "")
+        row:Show()
+    end
+end

@@ -1,6 +1,11 @@
 local LootDistr, LDData = ...
 local f = LDData.main_frame
 
+for k, v in pairs(f) do
+    print("f." .. k, v)
+end
+
+
 function HideAllTabs()
     f.csvTab:Hide()
     f.reservesTab:Hide()
