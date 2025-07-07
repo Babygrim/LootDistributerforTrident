@@ -17,9 +17,9 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
     if IsAltKeyDown() then
         if lootMethod == "master" then
             if masterLooter == 0 then
-                local itemName, itemLink = GetItemInfo(link)
+                local itemName, itemLink, _, ilvl = GetItemInfo(link)
                 local itemID = tonumber(link:match("item:(%d+)"))
-                
+
                 if itemID and itemLink and type(itemLink) == "string" then
                     if SoftResSaved[itemID] then
                         local counts = {}
@@ -42,6 +42,7 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
                         local msg = "Roll for: " .. itemLink .. " - No soft reserves"
                         SendChatMessage(msg, "RAID_WARNING")
                     end
+                    ShowLootRollerForItem(itemID, itemName, "", ilvl)
                 else
                     print("|cffFF4500[LootDistributer]|r Could not get itemID or link.")
                 end

@@ -30,5 +30,11 @@ LootWatcher\events.lua
 LootWatcher\commands.lua
 
 ##
+LootRoller\ui.lua
+LootRoller\core.lua
+LootRoller\events.lua
+LootRoller\commands.lua
+
+##
 main_events.lua
 main_logic.lua

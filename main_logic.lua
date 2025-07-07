@@ -4,7 +4,8 @@ local f = LDData.main_frame
 function HideAllTabs()
     f.csvTab:Hide()
     f.reservesTab:Hide()
-    f.lootWatcherTab:Hide()    -- added
+    f.lootWatcherTab:Hide()
+    f.lootRollerTab:Hide()
 end
 
 -- Show/Hide Tabs
@@ -37,6 +38,17 @@ function ShowTab(index)
         f.reservesHeader:Hide()
         UpdateLootWatcherTable(f.lootSearchBox:GetText())
         f.tickerFrame:Show()
+    elseif index == 4 then
+        f:Show()
+        ShowDummyLootRollerData()
+        f.lootRollerTab:Show()
+        f.lootWatcherTab:Hide()
+        f.importBtn:Hide()
+        f.deleteBtn:Hide()
+        f.searchBox:Hide()
+        f.reservesScroll:Hide()
+        f.reservesHeader:Hide()
+        f.tickerFrame:Hide()
     end
 end
 
@@ -107,7 +119,7 @@ function CreateTab(name, index)
     return tab
 end
 
-local tabNames = { "Import CSV", "Soft Reserves", "Loot Watcher" }
+local tabNames = { "Import CSV", "Soft Reserves", "Loot Watcher", "Loot Roller"}
 local tabOffsetX = 10
 local tabSpacing = 5
 
