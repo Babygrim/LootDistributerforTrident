@@ -25,8 +25,14 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
     end
 
     if event == "RAID_ROSTER_UPDATE" then
+        for _, option in ipairs(LDData.qualityThresholdOptions) do
+            if option.value == LootWatcherThreshold then
+                threshold = option.text
+            end
+        end
+
         if GetNumRaidMembers() > 0 and not LootWatcherActivated then
-            print("|cff00FF00[LootDistributer]|r You have joined the raid group. Loot Watcher activated.")
+            print("|cff00FF00[LootDistributer]|r You have joined the raid group. Loot Watcher activated. Loot treshold: "..threshold)
             LootWatcherActivated = true
         end
 
@@ -51,7 +57,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             local itemID = tonumber(itemLink:match("item:(%d+)"))
             if itemID then
                 local itemName = GetItemInfo(itemID)
-                if itemName and SoftResSaved[itemName] then
+                if itemName and SoftResSaved[itemID] then
                     SoftResLootedTimestamps[itemID] = time()
                     print("|cff00FF00[LootDistributer]|r Looted " .. itemLink .. " at " .. date("%H:%M:%S"))
                 end
@@ -85,42 +91,27 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                 lwPlayer = LDData.playerName  -- your player's name variable
             end
 
-            if lwPlayer and lwItemLink then
-                local count = 1
-                local qty = lwItemLink:match("x(%d+)")
-                if qty then count = tonumber(qty) end
+            local itemName, itemLink, itemRarity = GetItemInfo(lwItemLink)
+            if itemRarity and itemRarity >= LootWatcherThreshold then
+                if lwPlayer and lwItemLink then
+                    local count = 1
+                    local qty = lwItemLink:match("x(%d+)")
+                    if qty then count = tonumber(qty) end
 
-                table.insert(LootWatcherData, {
-                    item = lwItemLink,
-                    player = lwPlayer,
-                    count = count,
-                    time = date("%H:%M:%S"),
-                })
+                    table.insert(LootWatcherData, {
+                        item = lwItemLink,
+                        player = lwPlayer,
+                        count = count,
+                        time = date("%d/%m/%Y %H:%M:%S"),
+                    })
 
-                TrimLootWatcherData() -- trim old loot records if needed
-                UpdateLootWatcherTable(f.lootSearchBox:GetText())
+                    TrimLootWatcherData() -- trim old loot records if needed
+                    UpdateLootWatcherTable(f.lootSearchBox:GetText())
 
-                print("|cff00FF00[LootDistributer]|r Tracked loot: |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
+                    print("|cff00FF00[LootDistributer]|r Tracked loot: |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
+                end
             end
         end
         return
     end
 end)
-
--- Ticker
-f.tickerFrame = CreateFrame("Frame")
-local elapsed = 0
-
-f.tickerFrame:SetScript("OnUpdate", function(self, delta)
-    elapsed = elapsed + delta
-    if elapsed >= 1 then
-        elapsed = 0
-        if f.reservesTab:IsShown() then
-            UpdateReservesTable(f.searchBox:GetText())
-        elseif f.lootWatcherTab:IsShown() then
-            UpdateLootWatcherTable(f.lootSearchBox:GetText())
-        end
-    end
-end)
-
-f.tickerFrame:Hide() -- initially hidden

@@ -3,6 +3,9 @@ local f = LDData.main_frame
 
 local ROW_HEIGHT = 20
 
+-- Rows cache
+local rollRows = {}
+
 -- Current displayed item data
 LDData.currentLootRollItemId = CurrentRollItemID
 LDData.currentLootRollItemName = "Unknown"
@@ -11,7 +14,6 @@ LDData.currentLootRollItemIlvl = "Unknown"
 
 -- Function to update item info text and icon
 function UpdateLootRollerItemInfo()
-
     local itemId = LDData.currentLootRollItemId
     local itemName = LDData.currentLootRollItemName
     local itemSource = LDData.currentLootRollItemSource
@@ -20,17 +22,16 @@ function UpdateLootRollerItemInfo()
     local icon = GetItemIcon(itemId)
     f.lootRollerItemIcon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
 
+    local link
     if itemId then
-        local link = select(2, GetItemInfo(itemId))
-    else
-        local link = nil
+        link = select(2, GetItemInfo(itemId))
     end
-    
+
     if link then
         f.lootRollerItemNameText:SetText("Item: "..link)
         f.lootRollerItemNameFrame.link = link
     else
-        f.lootRollerItemNameText:SetText("Item: "..itemName or "Unknown")
+        f.lootRollerItemNameText:SetText("Item: "..(itemName or "Unknown"))
         f.lootRollerItemNameFrame.link = nil
     end
 
@@ -38,6 +39,7 @@ function UpdateLootRollerItemInfo()
     f.lootRollerItemSourceText:SetText("Item Source: " .. (itemSource or "Unknown"))
     f.lootRollerItemIlvlText:SetText("Item Level: " .. (itemIlvl or "Unknown"))
 end
+
 
 function CreateRollerRow(index)
     local row = CreateFrame("Frame", nil, f.scrollContent)
@@ -70,35 +72,6 @@ function CreateRollerRow(index)
     row.text = row.playerText or row["playerText"]
 
     return row
-end
-
-
-
--- Rows cache
-local rollRows = {}
-
--- Function to populate and refresh the table
-function UpdateLootRollerTable(data)
-    -- Sort by roll descending
-    table.sort(data, function(a, b) return a.roll > b.roll end)
-
-    -- Clear previous rows
-    for _, row in ipairs(rollRows) do
-        row:Hide()
-    end
-
-    -- Show new rows
-    for i, entry in ipairs(data) do
-        if not rollRows[i] then
-            rollRows[i] = CreateRollerRow(i)
-        end
-        local row = rollRows[i]
-        row.player:SetText(entry.player or "")
-        row.class:SetText(entry.class or "")
-        row.roll:SetText(tostring(entry.roll or ""))
-        row.date:SetText(entry.date or "")
-        row:Show()
-    end
 end
 
 -- Assumes `reserves` is globally available or passed in
@@ -165,14 +138,15 @@ function RefreshLootRollerTable()
     f.scrollContent:SetHeight(math.max(#sortedRolls * LDData.rowHeight + 20, f.scrollFrame:GetHeight()))
 end
 
-
-
 -- Show Loot Roller UI for real item or dummy
 function ShowLootRollerForItem(link, itemID, itemSource, itemIlvl)
     LDData.currentLootRollItemId = itemID
     LDData.currentLootRollItemName = link
     LDData.currentLootRollItemSource = itemSource
     LDData.currentLootRollItemIlvl = itemIlvl
+
+    f.lootRollerItemNameFrame.link = link
+    LootRolls = {}
 
     ShowTab(4)
     UpdateLootRollerItemInfo()

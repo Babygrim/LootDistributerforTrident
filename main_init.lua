@@ -1,18 +1,21 @@
 local LootDistr, LDData = ...
 
 -- Saved Variables
+
 -- Reserves + CSVImport
 SoftResSaved = SoftResSaved or {}
 SoftResCSV = SoftResCSV or ""
 SoftResLootedTimestamps = SoftResLootedTimestamps or {}
+
 -- Loot watcher
 LootWatcherData = LootWatcherData or {}
 LootWatcherGoldGained = LootWatcherGoldGained or 0
+LootWatcherThreshold = LootWatcherThreshold or 3
+
 -- Loot Roller
 CurrentRollItemID = CurrentRollItemID or nil
 LootRolls = LootRolls or {}
 SRPlayersRollers = SRPlayersRollers or nil
-
 
 -- Shared Variables
 LDData.currentSort = { column = "item", ascending = true }
@@ -44,7 +47,14 @@ LDData.lootRollHeaders = {
     { text = "Roll", width = 100, key = "roll" },
     { text = "Date", width = 100, key = "date" },
 }
-
+LDData.qualityThresholdOptions = {
+    { text = "Poor", value = 0 },
+    { text = "Common+", value = 1 },
+    { text = "Uncommon+", value = 2 },
+    { text = "Rare+", value = 3 },
+    { text = "Epic+", value = 4 },
+    { text = "Legendary+", value = 5 },
+}
 LDData.BossToDungeon = {
     -- Karazhan
     ["Attumen the Huntsman"] = "Karazhan",

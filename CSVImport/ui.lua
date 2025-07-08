@@ -36,9 +36,6 @@ f.csvEditBox:SetBackdropBorderColor(1, 1, 1, 1)
 f.csvScroll:SetScrollChild(f.csvEditBox)
 f.csvScroll:EnableMouseWheel(true)
 
--- Escape to hide
-f.csvEditBox:SetScript("OnEscapePressed", function() f:Hide() end)
-
 -- Import CSV Button
 f.importBtn = CreateFrame("Button", LootDistr .. "ImportBtn", f.csvTab, "GameMenuButtonTemplate")
 f.importBtn:SetSize(120, 30)

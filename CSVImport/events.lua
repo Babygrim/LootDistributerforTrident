@@ -10,11 +10,12 @@ StaticPopupDialogs[LootDistr .. "ConfirmOverwrite"] = {
         local text = f.csvEditBox:GetText()
         local ok, result = pcall(parseCSV, text)
         if not ok then
-            DEFAULT_CHAT_FRAME:AddMessage("|cffFF4500[LootDistributer]|r CSV parse error: " .. result)
+            print("|cffFF4500[LootDistributer]|r CSV parse error: " .. result)
             return
         end
         SoftResSaved = result
-        DEFAULT_CHAT_FRAME:AddMessage("|cff00FF00[LootDistributer]|r Imported soft reserves!")
+        SoftResCSV = text
+        print("|cff00FF00[LootDistributer]|r Imported soft reserves!")
         if f.reservesTab:IsShown() then
             LDData.UpdateReservesTable(f.searchBox:GetText())
         end
@@ -24,3 +25,7 @@ StaticPopupDialogs[LootDistr .. "ConfirmOverwrite"] = {
     hideOnEscape = true,
     preferredIndex = 3,
 }
+
+f.csvTab:SetScript("OnShow", function(self) 
+    f.csvEditBox:SetText(SoftResCSV or "")
+end)

@@ -76,7 +76,7 @@ function TrimLootWatcherData()
         totalCount = totalCount + (entry.count or 1)
     end
 
-    while totalCount > 1000 and #LootWatcherData > 0 do
+    while totalCount > 100 and #LootWatcherData > 0 do
         local oldest = table.remove(LootWatcherData, 1) -- remove oldest entry
         totalCount = totalCount - (oldest.count or 1)
     end

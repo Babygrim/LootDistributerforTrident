@@ -31,3 +31,7 @@ f.searchBox:SetScript("OnEditFocusLost", function(self)
         UpdateReservesTable("")
     end
 end)
+
+f.reservesTab:SetScript("OnShow", function(self)
+    UpdateReservesTable()
+end)

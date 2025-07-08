@@ -23,7 +23,7 @@ function ShowTab(index)
         f.searchBox:Hide()
         f.reservesScroll:Hide()
         f.reservesHeader:Hide()
-        f.tickerFrame:Hide()
+        -- f.tickerFrame:Hide()
         f.csvEditBox:SetText(SoftResCSV or "")
     elseif index == 2 then
         f.reservesTab:Show()
@@ -33,7 +33,7 @@ function ShowTab(index)
         f.reservesScroll:Show()
         f.reservesHeader:Show()
         UpdateReservesTable(f.searchBox:GetText())
-        f.tickerFrame:Show()
+        -- f.tickerFrame:Show()
     elseif index == 3 then
         f.lootWatcherTab:Show()
         f.importBtn:Hide()
@@ -42,7 +42,7 @@ function ShowTab(index)
         f.reservesScroll:Hide()
         f.reservesHeader:Hide()
         UpdateLootWatcherTable(f.lootSearchBox:GetText())
-        f.tickerFrame:Show()
+        -- f.tickerFrame:Show()
     elseif index == 4 then
         f:Show()
         f.lootRollerTab:Show()
@@ -52,7 +52,7 @@ function ShowTab(index)
         f.searchBox:Hide()
         f.reservesScroll:Hide()
         f.reservesHeader:Hide()
-        f.tickerFrame:Hide()
+        -- f.tickerFrame:Hide()
     end
 end
 
@@ -101,7 +101,7 @@ tabs = {}
 
 for i, name in ipairs(tabNames) do
     local tab = CreateTab(name, i)
-    tab:SetPoint("TOPLEFT", f, "TOPLEFT", tabOffsetX + (i-1)*(100 + tabSpacing), -35)
+    tab:SetPoint("TOPLEFT", f, "TOPLEFT", tabOffsetX + (i-1)*(90 + tabSpacing), -35)
     tabs[i] = tab
 end
 

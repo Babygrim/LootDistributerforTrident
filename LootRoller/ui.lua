@@ -21,25 +21,6 @@ f.lootRollerItemNameFrame:EnableMouse(true)
 f.lootRollerItemNameFrame:SetFrameLevel(f.lootRollerItemNameFrame:GetFrameLevel() + 1)
 f.lootRollerItemNameFrame:SetFrameStrata("HIGH")
 
--- Set tooltip behavior
-f.lootRollerItemNameFrame:SetScript("OnClick", function(self)
-    if self.link then
-        HandleModifiedItemClick(self.link)
-    end
-end)
-
-f.lootRollerItemNameFrame:SetScript("OnEnter", function(self)
-    if self.link then
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetHyperlink(self.link)
-        GameTooltip:Show()
-    end
-end)
-
-f.lootRollerItemNameFrame:SetScript("OnLeave", function()
-    GameTooltip:Hide()
-end)
-
 -- FontString: Item Name (linked)
 f.lootRollerItemNameText = f.lootRollerItemNameFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 f.lootRollerItemNameText:SetPoint("TOPLEFT", f.lootRollerItemNameFrame, "TOPLEFT", 0, 0)
@@ -117,6 +98,8 @@ f.lootRollEndBtn = CreateFrame("Button", LootDistr .. "LootRollEndBtn", f.lootRo
 f.lootRollEndBtn:SetSize(120, 30)
 f.lootRollEndBtn:SetPoint("BOTTOMLEFT", 9, 0)
 f.lootRollEndBtn:SetText("End Roll")
-f.lootRollEndBtn:SetScript("OnClick", function()
-    StaticPopup_Show(LootDistr .. "ConfirmEndLootRoller")
-end)
+
+f.lootReRollBtn = CreateFrame("Button", LootDistr .. "LootReRollBtn", f.lootRollerTab, "GameMenuButtonTemplate")
+f.lootReRollBtn:SetSize(120, 30)
+f.lootReRollBtn:SetPoint("BOTTOMLEFT", 140, 0)
+f.lootReRollBtn:SetText("Re-Roll")

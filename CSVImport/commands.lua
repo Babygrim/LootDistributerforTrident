@@ -46,7 +46,7 @@ f.importBtn:SetScript("OnClick", function()
         SoftResCSV = text
         print("|cff00FF00[LootDistributer]|r Imported soft reserves!")
         if f.reservesTab:IsShown() then
-            LDData.UpdateReservesTable(f.searchBox:GetText())
+            UpdateReservesTable(f.searchBox:GetText())
         end
     end
 end)
