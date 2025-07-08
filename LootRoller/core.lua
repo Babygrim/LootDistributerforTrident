@@ -40,6 +40,47 @@ function UpdateLootRollerItemInfo()
     f.lootRollerItemIlvlText:SetText("Item Level: " .. (itemIlvl or "Unknown"))
 end
 
+function CheckReRollEligibility()
+    if not f.lootReRollBtn then return end
+
+    local rolls = LootRolls or {}
+    local itemId = LDData.currentLootRollItemId
+    local itemName = LDData.currentLootRollItemName
+    if not itemId or not next(rolls) then
+        f.lootReRollBtn:Disable()
+        return
+    end
+
+    local isSR = SRPlayersRollers ~= nil
+    local pool = {}
+
+    for player, rollData in pairs(rolls) do
+        if not isSR or SRPlayersRollers[player] then
+            table.insert(pool, { name = player, roll = rollData.roll })
+        end
+    end
+
+    local maxRoll = 0
+    local tiedPlayers = {}
+
+    for _, entry in ipairs(pool) do
+        if entry.roll > maxRoll then
+            maxRoll = entry.roll
+            tiedPlayers = { entry.name }
+        elseif entry.roll == maxRoll then
+            table.insert(tiedPlayers, entry.name)
+        end
+    end
+
+    if #tiedPlayers >= 2 then
+        f.lootReRollBtn:Enable()
+        f.lootReRollBtn.tiedPlayers = tiedPlayers
+    else
+        f.lootReRollBtn:Disable()
+        f.lootReRollBtn.tiedPlayers = nil
+    end
+end
+
 
 function CreateRollerRow(index)
     local row = CreateFrame("Frame", nil, f.scrollContent)
@@ -136,6 +177,7 @@ function RefreshLootRollerTable()
     end
 
     f.scrollContent:SetHeight(math.max(#sortedRolls * LDData.rowHeight + 20, f.scrollFrame:GetHeight()))
+    CheckReRollEligibility()
 end
 
 -- Show Loot Roller UI for real item or dummy

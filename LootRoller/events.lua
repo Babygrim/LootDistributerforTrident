@@ -53,7 +53,15 @@ StaticPopupDialogs[LootDistr .. "ConfirmReLootRoller"] = {
         if LootRolls then
             LootRolls = {}
             RefreshLootRollerTable()
-            print("|cff00FF00[LootDistributer]|r Re-roll confirmed.")
+            local tied = f.lootReRollBtn.tiedPlayers
+
+            if tied and #tied >= 2 then
+                local message = "Re-Roll: " .. table.concat(tied, ", ")
+                SendChatMessage(message, "RAID_WARNING")
+                print("|cff00FF00[LootDistributer]|r Re-roll confirmed.")
+            else
+                print("No eligible re-rolls.")
+            end
         end
     end,
     timeout = 0,

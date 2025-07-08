@@ -103,3 +103,4 @@ f.lootReRollBtn = CreateFrame("Button", LootDistr .. "LootReRollBtn", f.lootRoll
 f.lootReRollBtn:SetSize(120, 30)
 f.lootReRollBtn:SetPoint("BOTTOMLEFT", 140, 0)
 f.lootReRollBtn:SetText("Re-Roll")
+f.lootReRollBtn:Disable()
