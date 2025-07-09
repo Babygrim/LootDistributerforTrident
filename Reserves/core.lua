@@ -81,7 +81,7 @@ function getTradeableTimeLeft(itemID)
             return "|cffff0000Expired|r"  -- red
         end
     end
-    return "|cffffffffUnknown|r" -- white
+    return ""
 end
 
 -- Update reserves table display with filtering support

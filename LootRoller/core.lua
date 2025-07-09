@@ -194,7 +194,7 @@ function ShowLootRollerForItem(link, itemID, itemSource, itemIlvl)
 end
 
 function HandleNewRoll(itemID, playerName, roll)
-    if not LDData.currentLootRollItemId or itemID ~= LDData.currentLootRollItemId then return end
+    if not CurrentRollItem.ID or itemID ~= CurrentRollItem.ID then return end
 
     -- Fetch SR players for current item (once per item)
     if SRPlayersRollers == nil then

@@ -14,10 +14,10 @@ function InitializeLootRollerEvents()
                 LDData.countdownFrame:Show()
             end
             
-            local countdown = 5
+            local countdown = 3
             local accumulated = 0
             
-            SendChatMessage(tostring(countdown), "RAID_WARNING")
+            SendChatMessage("Rolling ends in ".. tostring(countdown), "RAID_WARNING")
             
             LDData.countdownFrame:SetScript("OnUpdate", function(self, delta)
                 accumulated = accumulated + delta
@@ -107,11 +107,11 @@ function InitializeLootRollerEvents()
         if event == "CHAT_MSG_SYSTEM" then
             -- Parse roll message like "Player rolls 42 (1-100)"
             local playerName, rollValue, lowEnd, highEnd = string.match(msg, LDData.messages.regex.systemRoll)
-            if playerName and rollValue and LDData.currentLootRollItemId then
+            if playerName and rollValue and CurrentRollItem.ID then
                 rollValue = tonumber(rollValue)
                 -- Call our loot roller handler
                 -- print(LDData.currentLootRollItemId, playerName, rollValue, "WE ROLLIN BABE, FROM "..lowEnd.." TO "..highEnd)
-                LDData.HandleNewRoll(LDData.currentLootRollItemId, playerName, rollValue)
+                LDData.HandleNewRoll(CurrentRollItem.ID, playerName, rollValue)
             end
         end
     end)
