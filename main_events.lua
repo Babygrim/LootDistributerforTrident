@@ -14,12 +14,12 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         if GetNumRaidMembers() > 0 and lootMethod == "master" then
             local masterLooterName = UnitName("party" .. masterLooter)
             if masterLooterName == nil then
-                print("|cff00FF00[LootDistributer]|r Loot roll module enabled.")
+                print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.moduleEnabled)
             end
         end
 
         if (GetNumRaidMembers() > 0 or GetNumRaidMembers() == 0) and lootMethod ~= "master" then
-            print("|cffFF4500[LootDistributer]|r Loot roll module disabled.")
+            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.moduleDisabled)
         end
         return
     end
@@ -32,12 +32,12 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         end
 
         if GetNumRaidMembers() > 0 and not LootWatcherActivated then
-            print("|cff00FF00[LootDistributer]|r You have joined the raid group. Loot Watcher activated. Loot treshold: "..threshold)
+            print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.joinedRaid.." "..threshold)
             LootWatcherActivated = true
         end
 
         if GetNumRaidMembers() == 0 and LootWatcherActivated then
-            print("|cffFF4500[LootDistributer]|r You have left the raid group. Loot Watcher deactivated.")
+            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.leftRaid.."")
             LootWatcherActivated = false
         end
         return
@@ -47,13 +47,13 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         if not msg then return end
 
         -- Your loot parsing logic here:
-        local sPlayerName, itemLink = msg:match("^(.+) receives loot: (.+)%.$")
+        local sPlayerName, itemLink = msg:match(LDData.messages.regex.playerLoot)
         if not sPlayerName then
-            itemLink = msg:match("^You receive loot: (.+)%.$")
+            itemLink = msg:match(LDData.messages.regex.selfLoot)
             sPlayerName = playerName
         end
 
-        if itemLink and sPlayerName == playerName then
+        if itemLink then
             local itemID = tonumber(itemLink:match("item:(%d+)"))
             if itemID then
                 local itemName = GetItemInfo(itemID)
@@ -66,10 +66,10 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         
         if GetNumRaidMembers() > 0 then
             -- print(msg:find("Your share of the loot is"))
-            if msg:find("Your share of the loot is") then
-                local gold = tonumber(msg:match("(%d+)%s*gold")) or 0
-                local silver = tonumber(msg:match("(%d+)%s*silver")) or 0
-                local copper = tonumber(msg:match("(%d+)%s*copper")) or 0
+            if msg:find(LDData.messages.regex.goldShare) then
+                local gold = tonumber(msg:match(LDData.messages.regex.gold)) or 0
+                local silver = tonumber(msg:match(LDData.messages.regex.silver)) or 0
+                local copper = tonumber(msg:match(LDData.messages.regex.copper)) or 0
                 local total = gold * 10000 + silver * 100 + copper
                 if total > 0 then
                     LootWatcherGoldGained = (LootWatcherGoldGained or 0) + total
@@ -85,9 +85,9 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             end
 
             local lwPlayer, lwItemLink
-            lwPlayer, lwItemLink = msg:match("^(.+) receives loot: (.+)%.$")
+            lwPlayer, lwItemLink = msg:match(LDData.messages.regex.playerLoot)
             if not lwPlayer then
-                lwItemLink = msg:match("^You receive loot: (.+)%.$")
+                lwItemLink = msg:match(LDData.messages.regex.selfLoot)
                 lwPlayer = LDData.playerName  -- your player's name variable
             end
 
@@ -108,7 +108,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                     TrimLootWatcherData() -- trim old loot records if needed
                     UpdateLootWatcherTable(f.lootSearchBox:GetText())
 
-                    print("|cff00FF00[LootDistributer]|r Tracked loot: |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
+                    print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.trackedLoot.." |Hplayer:" .. lwPlayer .. "|h|cffFFD100[" .. lwPlayer .. "]|r|h looted " .. lwItemLink)
                 end
             end
         end

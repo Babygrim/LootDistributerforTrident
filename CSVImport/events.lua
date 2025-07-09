@@ -3,19 +3,19 @@ local f = LDData.main_frame
 
 -- Confirmation popup for overwriting existing data
 StaticPopupDialogs[LootDistr .. "ConfirmOverwrite"] = {
-    text = "Soft reserve data already exists. Importing new data will overwrite it. Continue?",
-    button1 = "Yes",
-    button2 = "No",
+    text = LDData.messages.dialogs.confirmOverwrite,
+    button1 = LDData.messages.dialogs.yes,
+    button2 = LDData.messages.dialogs.no,
     OnAccept = function()
         local text = f.csvEditBox:GetText()
         local ok, result = pcall(parseCSV, text)
         if not ok then
-            print("|cffFF4500[LootDistributer]|r CSV parse error: " .. result)
+            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.csvParseError.." "..result)
             return
         end
         SoftResSaved = result
         SoftResCSV = text
-        print("|cff00FF00[LootDistributer]|r Imported soft reserves!")
+        print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.softResImported)
         if f.reservesTab:IsShown() then
             LDData.UpdateReservesTable(f.searchBox:GetText())
         end

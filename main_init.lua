@@ -1,5 +1,5 @@
 local LootDistr, LDData = ...
-
+local AddonVersion = "v1.1"
 -- Saved Variables
 
 -- Reserves + CSVImport
@@ -21,8 +21,8 @@ SRPlayersRollers = SRPlayersRollers or nil
 LDData.currentSort = { column = "item", ascending = true }
 LDData.currentLootSort = { column = "time", ascending = false }
 LDData.playerName = UnitName("player")
-LDData.reservePlaceholder = "Search reserves..."
-LDData.lootPlaceholder = "Search loot..."
+LDData.reservePlaceholder = LDData.messages.ui.searchReserves
+LDData.lootPlaceholder = LDData.messages.ui.searchLoot
 
 -- UI shared Variables
 LDData.rowHeight = 20
@@ -124,8 +124,7 @@ LDData.BossToDungeon = {
     ["Archimonde"] = "Hyjal Summit",
 }
 
-
-print("|cff00FF00[LootDistributer]|r Addon Loaded (v1.0)")
+print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.addonLoaded.." ("..AddonVersion..")")
 
 
 

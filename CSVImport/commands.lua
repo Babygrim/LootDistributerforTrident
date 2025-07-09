@@ -5,14 +5,14 @@ local f = LDData.main_frame
 f.importBtn:SetScript("OnClick", function()
     local text = f.csvEditBox:GetText()
     if not text or text == "" then
-        print("|cffFF4500[LootDistributer]|r No CSV text to import!")
+        print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.noCSVText)
         return
     end
 
     -- Simple CSV check: first line should contain commas and required headers
     local firstLine = text:match("([^\r\n]+)")
     if not firstLine or not firstLine:find(",") then
-        print("|cffFF4500[LootDistributer]|r Not a valid CSV format (missing commas or header row).")
+        print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.invalidCSVFormat)
         return
     end
 
@@ -27,7 +27,7 @@ f.importBtn:SetScript("OnClick", function()
     end
     for colName, _ in pairs(requiredCols) do
         if not found[colName] then
-            print("|cffFF4500[LootDistributer]|r CSV is missing required column: |cffffff00" .. colName .. "|r")
+            print("|cffFF4500[LootDistributer]|r " .. string.format(LDData.messages.system.missingCSVColumn, colName))
             return
         end
     end
@@ -39,12 +39,12 @@ f.importBtn:SetScript("OnClick", function()
         -- No existing data, proceed directly
         local ok, result = pcall(parseCSV, text)
         if not ok then
-            print("|cffFF4500[LootDistributer]|r CSV parse error: " .. result)
+            print("|cffFF4500[LootDistributer]|r "..csvParseError.." ".. result)
             return
         end
         SoftResSaved = result
         SoftResCSV = text
-        print("|cff00FF00[LootDistributer]|r Imported soft reserves!")
+        print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.softResImported)
         if f.reservesTab:IsShown() then
             UpdateReservesTable(f.searchBox:GetText())
         end

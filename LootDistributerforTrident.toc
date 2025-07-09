@@ -6,6 +6,7 @@
 ## SavedVariables: SoftResSaved, SoftResCSV, SoftResLootedTimestamps, LootWatcherData, LootWatcherGoldGained, CurrentRollItemID, LootRolls, SRPlayersRollers, LootWatcherThreshold
 
 ##
+localization.lua
 main_init.lua
 main_ui.lua
 main_button_handlers.lua

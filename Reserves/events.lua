@@ -2,13 +2,13 @@ local LootDistr, LDData = ...
 local f = LDData.main_frame
 
 StaticPopupDialogs[LootDistr .. "ConfirmDelete"] = {
-    text = "Are you sure you want to delete ALL soft reserves data? This cannot be undone.",
-    button1 = "Yes",
-    button2 = "No",
+    text = LDData.messages.dialogs.confirmDeleteSoftRes,
+    button1 = LDData.messages.dialogs.yes,
+    button2 = LDData.messages.dialogs.no,
     OnAccept = function()
         SoftResSaved = {}
         UpdateReservesTable(f.searchBox:GetText())
-        print("|cff00FF00[LootDistributer]|r All soft reserves have been deleted.")
+        print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.softResDeleted)
     end,
     timeout = 0,
     whileDead = true,
