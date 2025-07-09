@@ -5,7 +5,6 @@ local f = LDData.main_frame
 --     print("f." .. k, v)
 -- end
 
-
 function HideAllTabs()
     f.csvTab:Hide()
     f.reservesTab:Hide()

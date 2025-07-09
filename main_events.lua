@@ -4,6 +4,7 @@ local LootWatcherActivated = false
 
 f.eventFrame = CreateFrame("Frame")
 f.eventFrame:RegisterEvent("CHAT_MSG_LOOT")
+f.eventFrame:RegisterEvent("CHAT_MSG_MONEY")
 f.eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
 f.eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 
@@ -23,10 +24,10 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         end
         return
     end
-
+    
     if event == "RAID_ROSTER_UPDATE" then
         for _, option in ipairs(LDData.qualityThresholdOptions) do
-            if option.value == LootWatcherThreshold then
+            if option.value == LootWatcherThresholdNumber then
                 threshold = option.text
             end
         end
@@ -59,31 +60,12 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                 local itemName = GetItemInfo(itemID)
                 if itemName and SoftResSaved[itemID] then
                     SoftResLootedTimestamps[itemID] = time()
-                    print("|cff00FF00[LootDistributer]|r Looted " .. itemLink .. " at " .. date("%H:%M:%S"))
+                    print("|cff00FF00[LootDistributer]|r Looted " .. itemLink .. " at " .. date("%H:%M:%S") .. ". Soft-reserved.")
                 end
             end
         end
         
         if GetNumRaidMembers() > 0 then
-            -- print(msg:find("Your share of the loot is"))
-            if msg:find(LDData.messages.regex.goldShare) then
-                local gold = tonumber(msg:match(LDData.messages.regex.gold)) or 0
-                local silver = tonumber(msg:match(LDData.messages.regex.silver)) or 0
-                local copper = tonumber(msg:match(LDData.messages.regex.copper)) or 0
-                local total = gold * 10000 + silver * 100 + copper
-                if total > 0 then
-                    LootWatcherGoldGained = (LootWatcherGoldGained or 0) + total
-        
-                    print(string.format("You received %dg %ds %dc. Total: %dg %ds %dc",
-                        gold, silver, copper,
-                        math.floor(LootWatcherGoldGained / 10000),
-                        math.floor((LootWatcherGoldGained % 10000) / 100),
-                        LootWatcherGoldGained % 100
-                    ))
-                end
-                UpdateLootWatcherTable(f.lootSearchBox:GetText())
-            end
-
             local lwPlayer, lwItemLink
             lwPlayer, lwItemLink = msg:match(LDData.messages.regex.playerLoot)
             if not lwPlayer then
@@ -92,7 +74,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             end
 
             local itemName, itemLink, itemRarity = GetItemInfo(lwItemLink)
-            if itemRarity and itemRarity >= LootWatcherThreshold then
+            if itemRarity and itemRarity >= LootWatcherThresholdNumber then
                 if lwPlayer and lwItemLink then
                     local count = 1
                     local qty = lwItemLink:match("x(%d+)")
@@ -114,4 +96,19 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         end
         return
     end
+
+    if event == "CHAT_MSG_MONEY" then
+        if msg:find(LDData.messages.regex.goldShare) then
+            local gold = tonumber(msg:match(LDData.messages.regex.gold)) or 0
+            local silver = tonumber(msg:match(LDData.messages.regex.silver)) or 0
+            local copper = tonumber(msg:match(LDData.messages.regex.copper)) or 0
+    
+            local total = gold * 10000 + silver * 100 + copper
+            if total > 0 then
+                LootWatcherGoldGained = (LootWatcherGoldGained or 0) + total
+            end
+            UpdateLootWatcherTable(f.lootSearchBox:GetText())
+        end
+    end
+
 end)

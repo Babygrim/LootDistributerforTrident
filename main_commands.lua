@@ -63,4 +63,3 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
         end
     end
 end)
-

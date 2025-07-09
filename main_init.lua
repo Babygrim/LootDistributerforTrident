@@ -1,7 +1,8 @@
 local LootDistr, LDData = ...
+
+
 local AddonVersion = "v1.1"
 -- Saved Variables
-
 -- Reserves + CSVImport
 SoftResSaved = SoftResSaved or {}
 SoftResCSV = SoftResCSV or ""
@@ -10,7 +11,7 @@ SoftResLootedTimestamps = SoftResLootedTimestamps or {}
 -- Loot watcher
 LootWatcherData = LootWatcherData or {}
 LootWatcherGoldGained = LootWatcherGoldGained or 0
-LootWatcherThreshold = LootWatcherThreshold or 3
+LootWatcherThresholdNumber = LootWatcherThresholdNumber or 3
 
 -- Loot Roller
 CurrentRollItemID = CurrentRollItemID or nil
@@ -48,12 +49,12 @@ LDData.lootRollHeaders = {
     { text = "Date", width = 100, key = "date" },
 }
 LDData.qualityThresholdOptions = {
-    { text = "Poor", value = 0 },
-    { text = "Common+", value = 1 },
-    { text = "Uncommon+", value = 2 },
-    { text = "Rare+", value = 3 },
-    { text = "Epic+", value = 4 },
-    { text = "Legendary+", value = 5 },
+    { text = (ITEM_QUALITY_COLORS[0] and ITEM_QUALITY_COLORS[0].hex or "|cffffffff").."Poor|r", value = 0 },
+    { text = (ITEM_QUALITY_COLORS[1] and ITEM_QUALITY_COLORS[1].hex or "|cffffffff").."Common|r", value = 1 },
+    { text = (ITEM_QUALITY_COLORS[2] and ITEM_QUALITY_COLORS[2].hex or "|cffffffff").."Uncommon|r", value = 2 },
+    { text = (ITEM_QUALITY_COLORS[3] and ITEM_QUALITY_COLORS[3].hex or "|cffffffff").."Rare|r", value = 3 },
+    { text = (ITEM_QUALITY_COLORS[4] and ITEM_QUALITY_COLORS[4].hex or "|cffffffff").."Epic|r", value = 4 },
+    { text = (ITEM_QUALITY_COLORS[5] and ITEM_QUALITY_COLORS[5].hex or "|cffffffff").."Legendary|r", value = 5 },
 }
 LDData.BossToDungeon = {
     -- Karazhan
@@ -124,7 +125,26 @@ LDData.BossToDungeon = {
     ["Archimonde"] = "Hyjal Summit",
 }
 
+-- CSV
+LDData.InitializeCSVImportUI()
+LDData.InitializeCSVImportCommands()
+LDData.InitializeCSVImportEvents()
+
+-- Reserves
+LDData.InitializeReservesUI()
+LDData.InitializeReservesEvents()
+
+-- LootWatcher
+LDData.InitializeLootWatcherUI()
+LDData.InitializeLootWatcherEvents()
+
+-- LootRoller
+LDData.InitializeLootRollerUI()
+LDData.InitializeLootRollerEvents()
+
 print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.addonLoaded.." ("..AddonVersion..")")
+
+
 
 
 

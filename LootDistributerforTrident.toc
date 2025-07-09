@@ -3,11 +3,10 @@
 ## Notes: Soft-reserve manager with CSV import and trade timer display
 ## Author: Wooah Blackbethy bam balam
 ## Version: 1.0
-## SavedVariables: SoftResSaved, SoftResCSV, SoftResLootedTimestamps, LootWatcherData, LootWatcherGoldGained, CurrentRollItemID, LootRolls, SRPlayersRollers, LootWatcherThreshold
+## SavedVariables: SoftResSaved, SoftResCSV, SoftResLootedTimestamps, LootWatcherData, LootWatcherGoldGained, CurrentRollItemID, LootRolls, SRPlayersRollers, LootWatcherThresholdNumber
 
 ##
 localization.lua
-main_init.lua
 main_ui.lua
 main_button_handlers.lua
 main_commands.lua
@@ -38,5 +37,6 @@ LootRoller\core.lua
 LootRoller\commands.lua
 
 ##
+main_init.lua
 main_events.lua
 main_logic.lua
