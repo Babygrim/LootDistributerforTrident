@@ -10,20 +10,34 @@ f.eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 
 f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
     if event == "PARTY_LOOT_METHOD_CHANGED" then
-        local lootMethod, masterLooter = GetLootMethod()
-
-        if GetNumRaidMembers() > 0 and lootMethod == "master" then
-            local masterLooterName = UnitName("party" .. masterLooter)
-            if masterLooterName == nil then
-                print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.moduleEnabled)
+        local lootMethod, raidID, partyID = GetLootMethod()
+    
+        if lootMethod == "master" then
+            local masterLooterName = nil
+    
+            if GetNumRaidMembers() > 0 then
+                -- Use raidID (index from 1 to 40)
+                if raidID then
+                    masterLooterName = GetRaidRosterInfo(raidID)
+                end
+            else
+                -- Use partyID (index from 0 to 4)
+                if partyID == 0 then
+                    masterLooterName = UnitName("player")
+                elseif partyID then
+                    masterLooterName = UnitName("party" .. partyID)
+                end
             end
+    
+            if masterLooterName then
+                print("|cff00FF00[LootDistributer]|r " .. LDData.messages.system.moduleEnabled)
+            end
+        else
+            print("|cffFF4500[LootDistributer]|r " .. LDData.messages.system.moduleDisabled)
         end
-
-        if (GetNumRaidMembers() > 0 or GetNumRaidMembers() == 0) and lootMethod ~= "master" then
-            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.moduleDisabled)
-        end
+    
         return
-    end
+    end    
     
     if event == "RAID_ROSTER_UPDATE" then
         for _, option in ipairs(LDData.qualityThresholdOptions) do
@@ -65,7 +79,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             end
         end
         
-        if GetNumRaidMembers() > 0 then
+        if GetNumRaidMembers() > 0 and itemLink then
             local lwPlayer, lwItemLink
             lwPlayer, lwItemLink = msg:match(LDData.messages.regex.playerLoot)
             if not lwPlayer then
