@@ -61,10 +61,10 @@ hooksecurefunc("HandleModifiedItemClick", function(link)
                     print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.notLootMaster)
                 end
             else
-                print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.notLootMaster)
+                print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.notInRaid)
             end
         else
-            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.notInRaid)
+            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.lootNotMaster)
         end
     else
         print("|cffFF4500[LootDistributer]|r "..string.format(LDData.messages.system.lootNotMaster, lootMethod))
