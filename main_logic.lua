@@ -51,6 +51,8 @@ function ShowTab(index)
         f.searchBox:Hide()
         f.reservesScroll:Hide()
         f.reservesHeader:Hide()
+        UpdateLootRollerItemInfo()
+        RefreshLootRollerTable()
         -- f.tickerFrame:Hide()
     end
 end

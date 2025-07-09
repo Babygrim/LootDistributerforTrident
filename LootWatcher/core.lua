@@ -145,7 +145,7 @@ function UpdateLootWatcherTable(filterText)
         local c = LootWatcherGoldGained % 100
 
         f.lootStatsLabel:SetText(
-            string.format("Raid: %s  |  Gold: |cffffff00%d|r g  |cffc7c7cf%d|r s  |cffeda55f%d|r c",
+            string.format("Raid: %s  |  Gold: |cffffff00%d|rg  |cffc7c7cf%d|rs  |cffeda55f%d|rc",
                 GuessMostFrequentDungeon(SoftResCSV) or "Unknown", g, s, c)
         )
     else

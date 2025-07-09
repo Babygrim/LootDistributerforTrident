@@ -2,43 +2,71 @@ local LootDistr, LDData = ...
 
 function InitializeLootRollerEvents()
     local f = LDData.main_frame
-    -- Confirmation popup for ending rolling
+    -- Confirmation popup for ending roll session
     StaticPopupDialogs[LootDistr .. "ConfirmEndLootRoller"] = {
         text = LDData.messages.dialogs.confirmEndRoll,
         button1 = LDData.messages.dialogs.yes,
         button2 = LDData.messages.dialogs.no,
         OnAccept = function()
-            local winnerName = nil
-            local highestRoll = -1
-
-            for playerName, data in pairs(LootRolls) do
-                if data.roll > highestRoll then
-                    highestRoll = data.roll
-                    winnerName = playerName
-                end
-            end
-
-            local msg
-            if winnerName then
-                msg = string.format(LDData.messages.system.rollEndedWinner, winnerName, tonumber(highestRoll))
+            if not LDData.countdownFrame then
+                LDData.countdownFrame = CreateFrame("Frame")
             else
-                msg = LDData.messages.system.rollEndedNoRolls
+                LDData.countdownFrame:Show()
             end
-
-            CurrentRollItemID = nil
-            LootRolls = {}
-            SRPlayersRollers = nil
-            f.lootRollerItemNameFrame.link = nil
-
-            LDData.currentLootRollItemId = CurrentRollItemID
-            LDData.currentLootRollItemName = "Unknown"
-            LDData.currentLootRollItemSource = "Unknown"
-            LDData.currentLootRollItemIlvl = "Unknown"
-
-            UpdateLootRollerItemInfo()
-            RefreshLootRollerTable()
-            print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.lootRollingEnded)
-            SendChatMessage(msg, "RAID_WARNING")
+            
+            local countdown = 5
+            local accumulated = 0
+            
+            SendChatMessage(tostring(countdown), "RAID_WARNING")
+            
+            LDData.countdownFrame:SetScript("OnUpdate", function(self, delta)
+                accumulated = accumulated + delta
+                if accumulated < 1 then return end -- only run once per second
+                
+                accumulated = 0 -- reset counter
+                
+                countdown = countdown - 1
+                if countdown > 0 then
+                    SendChatMessage(tostring(countdown), "RAID_WARNING")
+                else
+                    self:SetScript("OnUpdate", nil)
+            
+                    -- Winner calculation happens AFTER countdown
+                    local winnerName = nil
+                    local highestRoll = -1
+            
+                    for playerName, data in pairs(LootRolls) do
+                        if data.roll > highestRoll then
+                            highestRoll = data.roll
+                            winnerName = playerName
+                        end
+                    end
+            
+                    local msg
+                    if winnerName then
+                        msg = string.format(LDData.messages.system.rollEndedWinner, winnerName, tonumber(highestRoll))
+                    else
+                        msg = LDData.messages.system.rollEndedNoRolls
+                    end
+            
+                    -- Reset loot roller state
+                    CurrentRollItem = {}
+                    LootRolls = {}
+                    SRPlayersRollers = nil
+                    f.lootRollerItemNameFrame.link = nil
+            
+                    LDData.currentLootRollItemId = nil
+                    LDData.currentLootRollItemName = "Unknown"
+                    LDData.currentLootRollItemSource = "Unknown"
+                    LDData.currentLootRollItemIlvl = "Unknown"
+            
+                    UpdateLootRollerItemInfo()
+                    RefreshLootRollerTable()
+            
+                    print("|cff00FF00[LootDistributer]|r " .. LDData.messages.system.lootRollingEnded)
+                    SendChatMessage(msg, "RAID_WARNING")
+                end
+            end)            
         end,
         timeout = 0,
         whileDead = true,
@@ -109,7 +137,7 @@ function InitializeLootRollerEvents()
 
     -- Confirm and Announce roll session end
     f.lootRollEndBtn:SetScript("OnClick", function()
-        if LDData.currentLootRollItemId then
+        if CurrentRollItem.ID then
             StaticPopup_Show(LootDistr .. "ConfirmEndLootRoller")
         else
             print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.noItemRolling)

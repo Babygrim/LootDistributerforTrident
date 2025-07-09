@@ -6,18 +6,12 @@ local ROW_HEIGHT = 20
 -- Rows cache
 local rollRows = {}
 
--- Current displayed item data
-LDData.currentLootRollItemId = CurrentRollItemID
-LDData.currentLootRollItemName = "Unknown"
-LDData.currentLootRollItemSource = "Unknown"
-LDData.currentLootRollItemIlvl = "Unknown"
-
 -- Function to update item info text and icon
 function UpdateLootRollerItemInfo()
-    local itemId = LDData.currentLootRollItemId
-    local itemName = LDData.currentLootRollItemName
-    local itemSource = LDData.currentLootRollItemSource
-    local itemIlvl = LDData.currentLootRollItemIlvl
+    local itemId = LDData.currentLootRollItemId or CurrentRollItem.ID
+    local itemName = LDData.currentLootRollItemName or CurrentRollItem.Name
+    local itemSource = LDData.currentLootRollItemSource or CurrentRollItem.Source
+    local itemIlvl = LDData.currentLootRollItemIlvl or CurrentRollItem.Ilvl
 
     local icon = GetItemIcon(itemId)
     f.lootRollerItemIcon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
@@ -188,6 +182,10 @@ function ShowLootRollerForItem(link, itemID, itemSource, itemIlvl)
     LDData.currentLootRollItemIlvl = itemIlvl
 
     f.lootRollerItemNameFrame.link = link
+    CurrentRollItem.ID = itemID
+    CurrentRollItem.Name = link
+    CurrentRollItem.Source = itemSource
+    CurrentRollItem.Ilvl = itemIlvl
     LootRolls = {}
 
     ShowTab(4)

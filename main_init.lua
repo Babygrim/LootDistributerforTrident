@@ -14,7 +14,7 @@ LootWatcherGoldGained = LootWatcherGoldGained or 0
 LootWatcherThresholdNumber = LootWatcherThresholdNumber or 3
 
 -- Loot Roller
-CurrentRollItemID = CurrentRollItemID or nil
+CurrentRollItem = CurrentRollItem or {}
 LootRolls = LootRolls or {}
 SRPlayersRollers = SRPlayersRollers or nil
 

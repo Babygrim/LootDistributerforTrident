@@ -30,7 +30,8 @@ localeBasedMessages["enUS"] = {
     invalidCSVFormat = "Not a valid CSV format (missing commas or header row).",
     missingCSVColumn = "CSV is missing required column: |cffffff00%s|r",
     softResDeleted = "All soft reserves have been deleted.",
-    thresholdChanged = "Loot parsing threshold changed to: %s",
+    thresholdChanged = "Loot Watcher parsing threshold changed to: %s",
+    itemIsBeingRolledFor = "Rolling session for %s has not ended yet."
   },
   dialogs = {
     confirmEndRoll = "Are you sure you want to end rolling?",
