@@ -140,7 +140,7 @@ function RefreshLootRollerTable()
             player = playerName,
             roll = rollData.roll,
             class = rollData.class or "",
-            date = rollData.date or ""
+            spec = rollData.spec or ""
         })
     end
     table.sort(sortedRolls, function(a, b) return a.roll > b.roll end)
@@ -162,7 +162,7 @@ function RefreshLootRollerTable()
         
         row.classText:SetText(entry.class)
         row.rollText:SetText(tostring(entry.roll))
-        row.dateText:SetText(entry.date)
+        row.specText:SetText(entry.spec)
         row:Show()
     end
 
@@ -193,7 +193,7 @@ function ShowLootRollerForItem(link, itemID, itemSource, itemIlvl)
     RefreshLootRollerTable()
 end
 
-function HandleNewRoll(itemID, playerName, roll)
+function HandleNewRoll(itemID, playerName, roll, spec)
     if not CurrentRollItem.ID or itemID ~= CurrentRollItem.ID then return end
 
     -- Fetch SR players for current item (once per item)
@@ -225,7 +225,7 @@ function HandleNewRoll(itemID, playerName, roll)
             LootRolls[playerName] = {
                 roll = roll,
                 class = class or "UNKNOWN",
-                date = date("%Y-%m-%d")
+                spec = spec,
             }
             RefreshLootRollerTable()
         end
@@ -239,7 +239,7 @@ function HandleNewRoll(itemID, playerName, roll)
             LootRolls[playerName] = {
                 roll = roll,
                 class = class or "UNKNOWN",
-                date = date("%Y-%m-%d")
+                spec = spec,
             }
             RefreshLootRollerTable()
         end
@@ -253,7 +253,7 @@ function HandleNewRoll(itemID, playerName, roll)
             LootRolls[playerName] = {
                 roll = roll,
                 class = class or "UNKNOWN",
-                date = date("%Y-%m-%d")
+                spec = spec,
             }
             RefreshLootRollerTable()
         end

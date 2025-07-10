@@ -10,34 +10,24 @@ f.eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 
 f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
     if event == "PARTY_LOOT_METHOD_CHANGED" then
-        local lootMethod, raidID, partyID = GetLootMethod()
-    
-        if lootMethod == "master" then
-            local masterLooterName = nil
-    
-            if GetNumRaidMembers() > 0 then
-                -- Use raidID (index from 1 to 40)
-                if raidID then
-                    masterLooterName = GetRaidRosterInfo(raidID)
+        local lootMethod, masterLooter = GetLootMethod()
+
+        if GetNumRaidMembers() > 0 and lootMethod == "master" and masterLooter == 0 then
+            local currentLocaleText = nil
+            for _, locale in ipairs(LDData.localeOptions) do
+                if locale.value == LootRollerLocaleSettings then
+                    currentLocaleText = locale.text
                 end
-            else
-                -- Use partyID (index from 0 to 4)
-                if partyID == 0 then
-                    masterLooterName = UnitName("player")
-                elseif partyID then
-                    masterLooterName = UnitName("party" .. partyID)
-                end
-            end
-    
-            if masterLooterName then
-                print("|cff00FF00[LootDistributer]|r " .. LDData.messages.system.moduleEnabled)
-            end
-        else
-            print("|cffFF4500[LootDistributer]|r " .. LDData.messages.system.moduleDisabled)
+            end                
+            print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.moduleEnabled.." "..string.format(LDData.messages.system.rollAnnounceLocalization, currentLocaleText))
+            return
         end
-    
+
+        if GetNumRaidMembers() == 0 or lootMethod ~= "master" or masterLooter ~= 0 then
+            print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.moduleDisabled)
+        end
         return
-    end    
+    end
     
     if event == "RAID_ROSTER_UPDATE" then
         for _, option in ipairs(LDData.qualityThresholdOptions) do
@@ -123,6 +113,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             end
             UpdateLootWatcherTable(f.lootSearchBox:GetText())
         end
+        return
     end
 
 end)

@@ -33,6 +33,18 @@ function InitializeReservesEvents()
         end
     end)
 
+    f.searchBox:SetScript("OnTextChanged", function(self)
+        local txt = self:GetText()
+        if txt == LDData.lootPlaceholder then txt = "" end
+        UpdateReservesTable(txt)
+    end)
+    
+    f.searchBox:SetScript("OnEnterPressed", function(self)
+        local text = self:GetText()
+        UpdateReservesTable(text)
+        self:ClearFocus()
+    end)
+
     f.reservesTab:SetScript("OnShow", function(self)
         UpdateReservesTable()
     end)

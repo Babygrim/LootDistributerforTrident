@@ -27,6 +27,7 @@ function InitializeLootWatcherEvents()
         end
         f.lootScroll:SetVerticalScroll(0)
     end)
+
     f.lootSearchBox:SetScript("OnEditFocusLost", function(self)
         if self:GetText() == "" then
             self:SetTextColor(0.8, 0.8, 0.8, 1)
@@ -34,10 +35,17 @@ function InitializeLootWatcherEvents()
             UpdateLootWatcherTable("")
         end
     end)
+
     f.lootSearchBox:SetScript("OnTextChanged", function(self)
         local txt = self:GetText()
         if txt == LDData.lootPlaceholder then txt = "" end
         UpdateLootWatcherTable(txt)
+    end)
+    
+    f.lootSearchBox:SetScript("OnEnterPressed", function(self)
+        local text = self:GetText()
+        UpdateLootWatcherTable(text)
+        self:ClearFocus()
     end)
 
 

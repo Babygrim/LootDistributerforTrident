@@ -17,6 +17,7 @@ LootWatcherThresholdNumber = LootWatcherThresholdNumber or 3
 CurrentRollItem = CurrentRollItem or {}
 LootRolls = LootRolls or {}
 SRPlayersRollers = SRPlayersRollers or nil
+LootRollerLocaleSettings = LootRollerLocaleSettings or GetLocale() or "enUS"
 
 -- Shared Variables
 LDData.currentSort = { column = "item", ascending = true }
@@ -46,7 +47,7 @@ LDData.lootRollHeaders = {
     { text = "Player", width = 250, key = "player" },
     { text = "Class", width = 120, key = "class" },
     { text = "Roll", width = 100, key = "roll" },
-    { text = "Date", width = 100, key = "date" },
+    { text = "Spec", width = 100, key = "spec" },
 }
 LDData.qualityThresholdOptions = {
     { text = (ITEM_QUALITY_COLORS[0] and ITEM_QUALITY_COLORS[0].hex or "|cffffffff").."Poor|r", value = 0 },
@@ -55,6 +56,15 @@ LDData.qualityThresholdOptions = {
     { text = (ITEM_QUALITY_COLORS[3] and ITEM_QUALITY_COLORS[3].hex or "|cffffffff").."Rare|r", value = 3 },
     { text = (ITEM_QUALITY_COLORS[4] and ITEM_QUALITY_COLORS[4].hex or "|cffffffff").."Epic|r", value = 4 },
     { text = (ITEM_QUALITY_COLORS[5] and ITEM_QUALITY_COLORS[5].hex or "|cffffffff").."Legendary|r", value = 5 },
+}
+LDData.localeOptions = {
+    { text = "English",      value = "enUS" },
+    { text = "Русский",      value = "ruRU" },   -- Russian
+    { text = "Français",     value = "frFR" },   -- French
+    { text = "Deutsch",      value = "deDE" },   -- German
+    { text = "Español",      value = "esES" },   -- Spanish
+    { text = "Português (BR)", value = "ptBR" }, -- Portuguese (Brazil)
+    { text = "Italiano",     value = "itIT" },   -- Italian
 }
 LDData.BossToDungeon = {
     -- Karazhan

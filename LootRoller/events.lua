@@ -8,6 +8,7 @@ function InitializeLootRollerEvents()
         button1 = LDData.messages.dialogs.yes,
         button2 = LDData.messages.dialogs.no,
         OnAccept = function()
+            LootRollerLocaleSettings = LootRollerLocaleSettings or GetLocale() or "enUS"
             if not LDData.countdownFrame then
                 LDData.countdownFrame = CreateFrame("Frame")
             else
@@ -17,7 +18,7 @@ function InitializeLootRollerEvents()
             local countdown = 3
             local accumulated = 0
             
-            SendChatMessage("Rolling ends in ".. tostring(countdown), "RAID_WARNING")
+            SendChatMessage(string.format(LDData.localeMessages[LootRollerLocaleSettings].system.rollEndsSoon, tostring(countdown)), "RAID_WARNING")
             
             LDData.countdownFrame:SetScript("OnUpdate", function(self, delta)
                 accumulated = accumulated + delta
@@ -34,19 +35,33 @@ function InitializeLootRollerEvents()
                     -- Winner calculation happens AFTER countdown
                     local winnerName = nil
                     local highestRoll = -1
-            
+                    local spec = nil
+                    
+                    -- Highest Main Spec
                     for playerName, data in pairs(LootRolls) do
-                        if data.roll > highestRoll then
+                        if data.roll > highestRoll and data.spec == "Main" then
                             highestRoll = data.roll
+                            spec = data.spec
                             winnerName = playerName
                         end
                     end
-            
+                    
+                    -- Highest Off Spec
+                    if not winnerName then
+                        for playerName, data in pairs(LootRolls) do
+                            if data.roll > highestRoll and data.spec == "Off" then
+                                highestRoll = data.roll
+                                spec = data.spec
+                                winnerName = playerName
+                            end
+                        end
+                    end
+
                     local msg
                     if winnerName then
-                        msg = string.format(LDData.messages.system.rollEndedWinner, winnerName, tonumber(highestRoll))
+                        msg = string.format(LDData.localeMessages[LootRollerLocaleSettings].system.rollEndedWinner, winnerName, tonumber(highestRoll), spec)
                     else
-                        msg = LDData.messages.system.rollEndedNoRolls
+                        msg = LDData.localeMessages[LootRollerLocaleSettings].system.rollEndedNoRolls
                     end
             
                     -- Reset loot roller state
@@ -109,9 +124,18 @@ function InitializeLootRollerEvents()
             local playerName, rollValue, lowEnd, highEnd = string.match(msg, LDData.messages.regex.systemRoll)
             if playerName and rollValue and CurrentRollItem.ID then
                 rollValue = tonumber(rollValue)
+                lowEnd, highEnd = tonumber(lowEnd), tonumber(highEnd)
+                local spec = nil
+                if lowEnd == 1 and highEnd == 100 then
+                    spec = "Main"
+                elseif lowEnd == 1 and highEnd == 99 then
+                    spec = "Off"
+                else
+                    spec = "TMOG"
+                end
                 -- Call our loot roller handler
                 -- print(LDData.currentLootRollItemId, playerName, rollValue, "WE ROLLIN BABE, FROM "..lowEnd.." TO "..highEnd)
-                LDData.HandleNewRoll(CurrentRollItem.ID, playerName, rollValue)
+                LDData.HandleNewRoll(CurrentRollItem.ID, playerName, rollValue, spec)
             end
         end
     end)

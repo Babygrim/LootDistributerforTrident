@@ -2,6 +2,7 @@ local LootDistr, LDData = ...
 
 function InitializeLootRollerUI()
     local f = LDData.main_frame
+
     -- Loot Roller Tab
     f.lootRollerTab = CreateFrame("Frame", LootDistr .. "LootRollerTab", f)
     f.lootRollerTab:SetPoint("TOPLEFT", 10, -70)
@@ -45,6 +46,57 @@ function InitializeLootRollerUI()
     f.lootRollerItemIlvlText:SetPoint("TOPLEFT", f.lootRollerItemSourceText, "BOTTOMLEFT", 0, -2)
     f.lootRollerItemIlvlText:SetJustifyH("LEFT")
     f.lootRollerItemIlvlText:SetWidth(300)
+
+    f.localeLabelRoller = f.lootRollerTab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    f.localeLabelRoller:SetPoint("LEFT", f.lootRollerItemNameText, "RIGHT", -60, 0)
+    f.localeLabelRoller:SetJustifyH("RIGHT")
+    f.localeLabelRoller:SetText("Announcements locale")
+    f.localeLabelRoller:SetWidth(300)
+
+    f.lootRollerDropdown = CreateFrame("Frame", "LootDistributerlootRollerDropdown", f.lootRollerTab, "UIDropDownMenuTemplate")
+    f.lootRollerDropdown:SetPoint("LEFT", f.lootRollerItemIDText, "RIGHT", 45, -10)
+    f.lootRollerDropdown:SetWidth(140)
+
+    -- Function to update dropdown display text based on checked option
+    local function UpdateDropdownText()
+        for _, option in ipairs(LDData.localeOptions) do
+            if LootRollerLocaleSettings == option.value then
+                UIDropDownMenu_SetText(f.lootRollerDropdown, option.text)
+                break
+            end
+        end
+    end
+
+    -- Dropdown initialize function
+    local function lootRollerDropdown(self, level)
+        local info = UIDropDownMenu_CreateInfo()
+        
+        for _, option in ipairs(LDData.localeOptions) do
+            info.text = option.text
+            info.value = option.value
+            info.func = function(self)
+                if LootRollerLocaleSettings ~= self.value then
+                    LootRollerLocaleSettings = self.value
+                    print("|cff00FF00[LootDistributer]|r Loot Roll announcements locale changed to: " .. self:GetText())
+                    UpdateLootWatcherTable(f.lootSearchBox:GetText())
+                    UpdateDropdownText() -- Update display text when selection changes
+                end
+                CloseDropDownMenus()
+            end
+            if LootRollerLocaleSettings == option.value then
+                info.checked = (LootRollerLocaleSettings == option.value)
+                UIDropDownMenu_SetText(f.lootRollerDropdown, option.text)
+            else
+                info.checked = (LootRollerLocaleSettings == option.value)
+            end
+            UIDropDownMenu_AddButton(info, level)
+        end
+    end
+
+    UIDropDownMenu_Initialize(f.lootRollerDropdown, lootRollerDropdown)
+
+    -- Set initial display text
+    UpdateDropdownText()
 
     -- Scroll Frame for rolls table
     f.scrollFrame = CreateFrame("ScrollFrame", LootDistr .. "LootRollerScrollFrame", f.lootRollerTab, "UIPanelScrollFrameTemplate")

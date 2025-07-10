@@ -20,14 +20,6 @@ function InitializeReservesUI()
     f.searchBox:SetFontObject(ChatFontNormal)
     f.searchBox:SetMaxLetters(100)
     f.searchBox:SetText("")
-    f.searchBox:SetScript("OnEscapePressed", function(self)
-        self:SetText("")
-        self:ClearFocus()
-        UpdateReservesTable("")
-    end)
-    f.searchBox:SetScript("OnTextChanged", function(self)
-        UpdateReservesTable(self:GetText())
-    end)
 
     -- Clean single backdrop - no InputBoxTemplate
     f.searchBox:SetBackdrop({
