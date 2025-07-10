@@ -47,10 +47,20 @@ function CheckReRollEligibility()
 
     local isSR = SRPlayersRollers ~= nil
     local pool = {}
+    local rollSpec = "TMOG"
+    local specChangeable = true
 
     for player, rollData in pairs(rolls) do
         if not isSR or SRPlayersRollers[player] then
-            table.insert(pool, { name = player, roll = rollData.roll })
+            table.insert(pool, { name = player, roll = rollData.roll, spec = rollData.spec})
+            if rollData.spec == "Main" and specChangeable then
+                rollSpec = rollData.spec
+                specChangeable = false
+            elseif rollData.spec == "Off" and specChangeable then
+                rollSpec = rollData.spec
+            elseif specChangeable then
+                rollSpec = rollData.spec
+            end
         end
     end
 
@@ -58,10 +68,10 @@ function CheckReRollEligibility()
     local tiedPlayers = {}
 
     for _, entry in ipairs(pool) do
-        if entry.roll > maxRoll then
+        if entry.roll > maxRoll and entry.spec == rollSpec then
             maxRoll = entry.roll
             tiedPlayers = { entry.name }
-        elseif entry.roll == maxRoll then
+        elseif entry.roll == maxRoll and entry.spec == rollSpec then
             table.insert(tiedPlayers, entry.name)
         end
     end
