@@ -48,6 +48,12 @@ function InitializeLootWatcherEvents()
         self:ClearFocus()
     end)
 
+    f.lootSearchBox:SetScript("OnEscapePressed", function(self)
+        self:SetText("")
+        self:ClearFocus()
+        UpdateLootWatcherTable("")
+    end)
+
 
     f.eventFrame_watcher = CreateFrame("Frame")
     f.eventFrame_watcher:RegisterEvent("CHAT_MSG_MONEY")

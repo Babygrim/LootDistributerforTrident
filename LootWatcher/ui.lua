@@ -16,11 +16,6 @@ function InitializeLootWatcherUI()
     f.lootSearchBox:SetAutoFocus(false)
     f.lootSearchBox:SetFontObject(ChatFontNormal)
     f.lootSearchBox:SetMaxLetters(100)
-    f.lootSearchBox:SetScript("OnEscapePressed", function(self)
-        self:SetText("")
-        self:ClearFocus()
-        UpdateLootWatcherTable("")
-    end)
 
     f.lootSearchBox:SetBackdrop({
         bgFile = "Interface\\ChatFrame\\ChatFrameBackground",

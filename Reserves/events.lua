@@ -45,6 +45,12 @@ function InitializeReservesEvents()
         self:ClearFocus()
     end)
 
+    f.searchBox:SetScript("OnEscapePressed", function(self)
+        self:SetText("")
+        self:ClearFocus()
+        UpdateLootWatcherTable("")
+    end)
+
     f.reservesTab:SetScript("OnShow", function(self)
         UpdateReservesTable()
     end)

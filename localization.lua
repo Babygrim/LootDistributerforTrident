@@ -278,7 +278,7 @@ localeBasedMessages["ruRU"] = {
   },
   regex = {
     playerLoot = "^(.+) получает добычу: (.+)%.$",
-    selfLoot = "^Вы получаете добычу: (.+)%.$",
+    selfLoot = "^Ваша добыча: (.+)%.$",
     goldShare = "Ваша доля добычи:",
     gold = "(%d+)%s*золот",
     silver = "(%d+)%s*серебр",
