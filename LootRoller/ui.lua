@@ -152,11 +152,17 @@ function InitializeLootRollerUI()
     f.lootRollEndBtn:SetPoint("BOTTOMLEFT", 9, 0)
     f.lootRollEndBtn:SetText("End Roll")
 
+    f.lootCancelBtn = CreateFrame("Button", LootDistr .. "RollCancelBtn", f.lootRollerTab, "GameMenuButtonTemplate")
+    f.lootCancelBtn:SetSize(120, 30)
+    f.lootCancelBtn:SetPoint("BOTTOMLEFT", 140, 0)
+    f.lootCancelBtn:SetText("Cancel Roll")
+
     f.lootReRollBtn = CreateFrame("Button", LootDistr .. "LootReRollBtn", f.lootRollerTab, "GameMenuButtonTemplate")
     f.lootReRollBtn:SetSize(120, 30)
-    f.lootReRollBtn:SetPoint("BOTTOMLEFT", 140, 0)
+    f.lootReRollBtn:SetPoint("BOTTOMLEFT", 270, 0)
     f.lootReRollBtn:SetText("Re-Roll")
     f.lootReRollBtn:Disable()
+
 end
 
 -- GLOBALS

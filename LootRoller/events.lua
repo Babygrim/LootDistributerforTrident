@@ -89,6 +89,34 @@ function InitializeLootRollerEvents()
         preferredIndex = 3,
     }
 
+    StaticPopupDialogs[LootDistr .. "ConfirmCancelRoller"] = {
+        text = LDData.messages.dialogs.confirmCancelRoll,
+        button1 = LDData.messages.dialogs.yes,
+        button2 = LDData.messages.dialogs.no,
+        OnAccept = function()
+            -- Reset loot roller state
+            CurrentRollItem = {}
+            LootRolls = {}
+            SRPlayersRollers = nil
+            f.lootRollerItemNameFrame.link = nil
+    
+            LDData.currentLootRollItemId = nil
+            LDData.currentLootRollItemSource = "Unknown"
+            LDData.currentLootRollItemIlvl = "Unknown"
+            
+            UpdateLootRollerItemInfo()
+            RefreshLootRollerTable()
+            
+            print("|cff00FF00[LootDistributer]|r " .. string.format(LDData.messages.system.rollingCancelled, LDData.currentLootRollItemName))
+            SendChatMessage(string.format(LDData.localeMessages[LootRollerLocaleSettings].system.rollingCancelled, LDData.currentLootRollItemName), "RAID_WARNING")
+            LDData.currentLootRollItemName = "Unknown"
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3,
+    }
+
     StaticPopupDialogs[LootDistr .. "ConfirmReLootRoller"] = {
         text = LDData.messages.dialogs.confirmReRoll,
         button1 = LDData.messages.dialogs.yes,
@@ -171,6 +199,14 @@ function InitializeLootRollerEvents()
     -- Confirm and Announce re-roll session start
     f.lootReRollBtn:SetScript("OnClick", function()
         StaticPopup_Show(LootDistr .. "ConfirmReLootRoller")
+    end)
+
+    f.lootCancelBtn:SetScript("OnClick", function()
+        if CurrentRollItem.ID then
+            StaticPopup_Show(LootDistr .. "ConfirmCancelRoller")
+        else
+            print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.noItemRolling)
+        end
     end)
 end
 
