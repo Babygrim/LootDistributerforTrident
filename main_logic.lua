@@ -1,15 +1,12 @@
 local LootDistr, LDData = ...
 local f = LDData.main_frame
 
--- for k, v in pairs(f) do
---     print("f." .. k, v)
--- end
-
 function HideAllTabs()
-    f.csvTab:Hide()
-    f.reservesTab:Hide()
-    f.lootWatcherTab:Hide()
-    f.lootRollerTab:Hide()
+    if f.reservesTab then f.reservesTab:Hide() end
+    if f.csvTab then f.csvTab:Hide() end
+    if f.settingsTab then f.settingsTab:Hide() end
+    if f.lootWatcherTab then f.lootWatcherTab:Hide() end
+    if f.lootRollerTab then f.lootRollerTab:Hide() end
 end
 
 -- Show/Hide Tabs
@@ -45,7 +42,6 @@ function ShowTab(index)
     elseif index == 4 then
         f:Show()
         f.lootRollerTab:Show()
-        f.lootWatcherTab:Hide()
         f.importBtn:Hide()
         f.deleteBtn:Hide()
         f.searchBox:Hide()
@@ -54,6 +50,14 @@ function ShowTab(index)
         UpdateLootRollerItemInfo()
         RefreshLootRollerTable()
         -- f.tickerFrame:Hide()
+    elseif index == 5 then
+        f:Show()
+        f.settingsTab:Show()
+        f.importBtn:Hide()
+        f.deleteBtn:Hide()
+        f.searchBox:Hide()
+        f.reservesScroll:Hide()
+        f.reservesHeader:Hide()
     end
 end
 
@@ -94,17 +98,23 @@ function CreateTab(name, index)
     return tab
 end
 
-local tabNames = { "Import CSV", "Soft Reserves", "Loot Watcher", "Loot Roller"}
-local tabOffsetX = 10
-local tabSpacing = 5
+function CreateAddonTabs()
+    local tabNames = { "Import CSV", "Soft Reserves", "Loot Watcher", "Loot Roller", "Settings"}
+    local tabOffsetX = 10
+    local tabSpacing = 5
 
-tabs = {}
+    tabs = {}
 
-for i, name in ipairs(tabNames) do
-    local tab = CreateTab(name, i)
-    tab:SetPoint("TOPLEFT", f, "TOPLEFT", tabOffsetX + (i-1)*(90 + tabSpacing), -35)
-    tabs[i] = tab
+    for i, name in ipairs(tabNames) do
+        local tab = CreateTab(name, i)
+        tab:SetPoint("TOPLEFT", f, "TOPLEFT", tabOffsetX + (i-1)*(90 + tabSpacing), -35)
+        tabs[i] = tab
+    end
+
+    -- Highlight the first tab by default
+    tabs[1]:Click()
 end
 
--- Highlight the first tab by default
-tabs[1]:Click()
+
+-- GLOBALS
+LDData.CreateAddonTabs = CreateAddonTabs

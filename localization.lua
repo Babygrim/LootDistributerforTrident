@@ -281,7 +281,7 @@ localeBasedMessages["ruRU"] = {
     selfLoot = "^Ваша добыча: (.+)%.$",
     goldShare = "Ваша доля добычи:",
     gold = "(%d+)%s*золот",
-    silver = "(%d+)%s*серебр",
+    silver = "(%d+)%s*сереб",
     copper = "(%d+)%s*медн",
     systemRoll = "^(%S+) выбрасывает (%d+) %((%d+)%-(%d+)%)$",
   },

@@ -3,12 +3,18 @@ local f = LDData.main_frame
 local LootWatcherActivated = false
 
 f.eventFrame = CreateFrame("Frame")
+f.eventFrame:RegisterEvent("ADDON_LOADED")
 f.eventFrame:RegisterEvent("CHAT_MSG_LOOT")
 f.eventFrame:RegisterEvent("CHAT_MSG_MONEY")
 f.eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
 f.eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 
+
 f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
+    if event == "ADDON_LOADED" and msg == LootDistr then
+        LDData.InitializeAddonCore()
+    end
+
     if event == "PARTY_LOOT_METHOD_CHANGED" then
         local lootMethod, masterLooter = GetLootMethod()
 
@@ -116,4 +122,15 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         return
     end
 
+    if event == "LOOT_OPENED" then
+        LDData.OnLootingMasterLooter()
+        return
+    end
+
+    if event == "PLAYER_TARGET_CHANGED" then
+        LDData.OnTargetChangedLootMaster()
+        return
+    end
+
+    
 end)

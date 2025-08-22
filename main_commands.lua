@@ -6,6 +6,7 @@ SlashCmdList["LOOTDISTRIBUTER"] = function(msg)
     if f:IsShown() then
         f:Hide()
     else
+        LDData.CreateAddonTabs()
         f:Show()
     end
 end
