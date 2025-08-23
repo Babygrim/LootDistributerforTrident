@@ -15,7 +15,7 @@ function OnTargetChanged(self, event)
 
         -- If inside a raid instance, maxPlayers tells you (10 or 25)
         if instanceType == "raid" and maxPlayers then
-            if maxPlayers > 10 and LootRollerAddonSettings.disableLootSwitchFor10Man then
+            if maxPlayers == 10 and LootRollerAddonSettings.disableLootSwitchFor10Man then
                 enabled = false
             end
         end
@@ -32,26 +32,47 @@ function OnTargetChanged(self, event)
     end
 end
 
-function OnLooting(self, event)
-    if not LootRollerAddonSettings or not LootRollerAddonSettings.autoLootSwitch then 
+function LootUpdate(self, elapsed)
+    if not looting or #lootQueue == 0 then
+        CloseLoot()
+        looting = false
+        f:SetScript("OnUpdate", nil)
+        return
+    end
+
+    local slot = table.remove(lootQueue, 1)
+    if LootSlotIsCoin(slot) or LootSlotIsItem(slot) then
+        LootSlot(slot)
+        ConfirmLootSlot(slot)
+    end
+end
+
+-- Fires when loot window opens
+function OnLooting(self, event, autoLoot)
+    if not LootRollerAddonSettings or not LootRollerAddonSettings.autoLootItems then 
         return 
     end
 
-    local lootMethod, masterLooter, masterLooterRaidID = GetLootMethod()
-    local isMasterLooter = (lootMethod == "master") and (masterLooter == UnitName("player"))
+    local lootMethod, masterLooter = GetLootMethod()
+    local isMasterLooter = (lootMethod == "master") and (masterLooter == 0)
+    if not isMasterLooter then return end
 
-    if isMasterLooter then
-        local numItems = GetNumLootItems()
-        for slot = 1, numItems do
-            if LootSlotIsItem(slot) then
-                LootSlot(slot)
-            elseif LootSlotIsCoin(slot) then
-                LootSlot(slot)
+    local playerName = UnitName("player")
+    local numItems = GetNumLootItems()
+    if LootSlotIsCoin(1) then LootSlot(1) end
+
+
+    for ci = 1, GetNumRaidMembers() do
+        if (GetMasterLootCandidate(ci) == UnitName("player")) then
+            for li = 1, GetNumLootItems() do
+                local lootIcon, lootName, lootQuantity, rarity, locked, isQuestItem, questId, isActive = GetLootSlotInfo(li);
+                if rarity <= 4 then
+                    GiveMasterLoot(li, ci);
+                end
             end
         end
-        -- Close loot window after looting
-        CloseLoot()
     end
+
 end
 
 LDData.OnTargetChangedLootMaster = OnTargetChanged

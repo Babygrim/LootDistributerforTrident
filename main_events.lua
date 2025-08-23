@@ -132,5 +132,9 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         return
     end
 
+    if event == "CONFIRM_LOOT_SLOT" then
+        print("do we even need to confirm shit?")
+        return
+    end
     
 end)
