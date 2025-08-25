@@ -6,8 +6,8 @@ f.eventFrame = CreateFrame("Frame")
 f.eventFrame:RegisterEvent("ADDON_LOADED")
 f.eventFrame:RegisterEvent("CHAT_MSG_LOOT")
 f.eventFrame:RegisterEvent("CHAT_MSG_MONEY")
-f.eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
 f.eventFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
+f.eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
 
 f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
@@ -35,19 +35,19 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         return
     end
     
-    if event == "RAID_ROSTER_UPDATE" then
+    if event == "GROUP_ROSTER_UPDATE" then
         for _, option in ipairs(LDData.qualityThresholdOptions) do
             if option.value == LootWatcherThresholdNumber then
                 threshold = option.text
             end
         end
 
-        if GetNumRaidMembers() > 0 and not LootWatcherActivated then
+        if not LootWatcherActivated and (IsInRaid() or (IsInGroup() and LootRollerAddonSettings.lootWatcherGroupSwitch) or LootRollerAddonSettings.lootWatcherNonGroupSwitch) then
             print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.joinedRaid.." "..threshold)
             LootWatcherActivated = true
         end
 
-        if GetNumRaidMembers() == 0 and LootWatcherActivated then
+        if LootWatcherActivated and not IsInRaid() and not (IsInGroup() and LootRollerAddonSettings.lootWatcherGroupSwitch) and not LootRollerAddonSettings.lootWatcherNonGroupSwitch then
             print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.leftRaid.."")
             LootWatcherActivated = false
         end
@@ -56,6 +56,11 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
 
     if event == "CHAT_MSG_LOOT" then
         if not msg then return end
+        
+        local trackLootCheck = false
+        if (IsInGroup() and LootRollerAddonSettings.lootWatcherGroupSwitch) or IsInRaid() or LootRollerAddonSettings.lootWatcherNonGroupSwitch then
+            trackLootCheck = true
+        end
 
         -- Your loot parsing logic here:
         local sPlayerName, itemLink = msg:match(LDData.messages.regex.playerLoot)
@@ -64,7 +69,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             sPlayerName = playerName
         end
 
-        if itemLink then
+        if trackLootCheck and itemLink then
             local itemID = tonumber(itemLink:match("item:(%d+)"))
             if itemID then
                 local itemName = GetItemInfo(itemID)
@@ -75,7 +80,7 @@ f.eventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             end
         end
         
-        if GetNumRaidMembers() > 0 and itemLink then
+        if itemLink then
             local lwPlayer, lwItemLink
             lwPlayer, lwItemLink = msg:match(LDData.messages.regex.playerLoot)
             if not lwPlayer then

@@ -2,6 +2,9 @@ local LootDistr, LDData = ...
 local f = LDData.main_frame
 
 function OnTargetChanged(self, event)
+    local inGroup = IsInGroup()
+    local inRaid = IsInRaid()
+    
     if not LootRollerAddonSettings or not LootRollerAddonSettings.autoLootSwitch then 
         return 
     end
@@ -18,6 +21,8 @@ function OnTargetChanged(self, event)
             if maxPlayers == 10 and LootRollerAddonSettings.disableLootSwitchFor10Man then
                 enabled = false
             end
+        elseif instanceType == "party" and LootRollerAddonSettings.disableLootSwitchForNonRaidGroup then
+            enabled = false
         end
 
         -- Boss mob
@@ -53,21 +58,37 @@ function OnLooting(self, event, autoLoot)
         return 
     end
 
+    local lootStartingIndex = 1
     local lootMethod, masterLooter = GetLootMethod()
     local isMasterLooter = (lootMethod == "master") and (masterLooter == 0)
     if not isMasterLooter then return end
 
     local playerName = UnitName("player")
     local numItems = GetNumLootItems()
-    if LootSlotIsCoin(1) then LootSlot(1) end
+    if LootSlotIsCoin(1) then 
+        LootSlot(1) 
+        lootStartingIndex = 2
+    end
 
+    local forLimitMaxPeople
 
-    for ci = 1, GetNumRaidMembers() do
+    if not IsInRaid() then 
+        forLimitMaxPeople = 40 
+    else 
+        forLimitMaxPeople = GetNumRaidMembers() 
+    end
+
+    for ci = 1, forLimitMaxPeople do
         if (GetMasterLootCandidate(ci) == UnitName("player")) then
-            for li = 1, GetNumLootItems() do
-                local lootIcon, lootName, lootQuantity, rarity, locked, isQuestItem, questId, isActive = GetLootSlotInfo(li);
-                if rarity <= 4 then
-                    GiveMasterLoot(li, ci);
+            for li = lootStartingIndex, GetNumLootItems() do
+                if not LootSlotIsCoin(li) then
+                    local lootItemLink = GetLootSlotLink(li)
+                    local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(lootItemLink)
+                    if itemRarity <= 4 and itemType ~= "Recipe" then
+                        GiveMasterLoot(li, ci)
+                    else
+                        print("|cffFF4500[LootDistributer]|r Skipped loot: "..itemLink.." of type: "..itemType.." and rarity of: "..itemRarity)
+                    end
                 end
             end
         end

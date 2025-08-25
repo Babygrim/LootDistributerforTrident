@@ -54,13 +54,6 @@ function InitializeLootWatcherEvents()
         UpdateLootWatcherTable("")
     end)
 
-
-    f.eventFrame_watcher = CreateFrame("Frame")
-    f.eventFrame_watcher:RegisterEvent("CHAT_MSG_MONEY")
-
-    f.eventFrame_watcher:SetScript("OnEvent", function(self, event, msg)
-                
-    end)
 end
 
 -- GLOBALS

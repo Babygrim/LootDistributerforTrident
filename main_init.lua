@@ -33,6 +33,18 @@ function InitializeAddonCore()
         LootRollerAddonSettings.disableLootSwitchFor10Man = false
     end
 
+    if LootRollerAddonSettings.disableLootSwitchForNonRaidGroup == nil then
+        LootRollerAddonSettings.disableLootSwitchForNonRaidGroup = false
+    end
+
+    if LootRollerAddonSettings.lootWatcherGroupSwitch == nil then
+        LootRollerAddonSettings.lootWatcherGroupSwitch = false
+    end
+
+    if LootRollerAddonSettings.lootWatcherNonGroupSwitch == nil then
+        LootRollerAddonSettings.lootWatcherNonGroupSwitch = false
+    end
+
     -- Shared Variables
     LDData.currentSort = { column = "item", ascending = true }
     LDData.currentLootSort = { column = "time", ascending = false }
