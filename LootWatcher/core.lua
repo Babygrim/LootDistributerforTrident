@@ -17,6 +17,13 @@ function CreateLootRow(index)
     row.itemFrame = CreateFrame("Button", nil, row)
     row.itemFrame:SetSize(LDData.lootHeaders[1].width, LDData.rowHeight)
     row.itemFrame:SetPoint("LEFT", row, "LEFT", 0, 0)
+    -- row.itemFrame:SetBackdrop({
+    --     bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+    --     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    --     tile = true, tileSize = 16, edgeSize = 16,
+    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    -- })
+    -- row.itemFrame:SetBackdropColor(0, 1, 0, 0.15)
 
     row.itemFrame:EnableMouse(true)
     row.itemFrame:SetFrameLevel(row:GetFrameLevel() + 1)
@@ -45,6 +52,59 @@ function CreateLootRow(index)
     row.playerText:SetPoint("LEFT", row.itemText, "RIGHT", 0, 0)
     row.playerText:SetWidth(LDData.lootHeaders[2].width)
 
+    row.playerFrame = CreateFrame("Button", nil, row)
+    row.playerFrame:SetSize(LDData.lootHeaders[2].width, LDData.rowHeight)
+    row.playerFrame:SetPoint("LEFT", row.itemFrame, "RIGHT", 0, 0)
+    -- row.playerFrame:SetBackdrop({
+    --     bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+    --     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    --     tile = true, tileSize = 16, edgeSize = 16,
+    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    -- })
+    -- row.playerFrame:SetBackdropColor(0, 1, 1, 0.15)
+
+    row.playerFrame:EnableMouse(true)
+    row.playerFrame:SetFrameLevel(row:GetFrameLevel() + 1)
+    row.playerFrame:SetFrameStrata("HIGH")
+
+    row.playerFrame:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:ClearLines()
+
+        local entry = self.info
+
+        if entry.lootMethod == "master" then
+            GameTooltip:AddLine(
+                string.format("|cffffd100Master Looter:|r %s", entry.looter or "Unknown"),
+                1, 1, 1
+            )
+        elseif entry.lootMethod == "group" and entry.rolls then
+            GameTooltip:AddLine("|cffffd100Group Loot Rolls:|r", 1, 1, 1)
+            for _, roll in ipairs(entry.rolls) do
+                local color = {1,1,1}
+                if roll.rollType == "NEED" then color = {0,1,0}
+                elseif roll.rollType == "GREED" then color = {0,0.7,1}
+                elseif roll.rollType == "DISENCHANT" then color = {0.7,0.3,1}
+                elseif roll.rollType == "PASS" then color = {0.7,0.7,0.7}
+                end
+                local text = string.format("%s: %s%s",
+                    roll.name,
+                    roll.rollType,
+                    roll.roll and (" ("..roll.roll..")") or ""
+                )
+                GameTooltip:AddLine(text, unpack(color))
+            end
+        else
+            GameTooltip:AddLine("Item wasn't rolled or given by master looter.", 1, 1, 1)
+        end
+
+        GameTooltip:Show()
+    end)
+
+    row.playerFrame:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+
     -- Count column
     row.countText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     row.countText:SetPoint("LEFT", row.playerText, "RIGHT", 0, 0)
@@ -57,7 +117,6 @@ function CreateLootRow(index)
 
     return row
 end
-
 
 function SortLootData()
     table.sort(LootWatcherData, function(a, b)
@@ -131,6 +190,7 @@ function UpdateLootWatcherTable(filterText)
         -- Set item text and tooltip
         row.itemText:SetText(link)
         row.itemFrame.link = link
+        row.playerFrame.info = {filteredData.lootMethod, filteredData.looter, filteredData.rolls}
 
         -- Other columns
         row.playerText:SetText(data.player or "")

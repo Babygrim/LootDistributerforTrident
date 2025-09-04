@@ -2,7 +2,7 @@ local LootDistr, LDData = ...
 
 -- Main frame
 local f = CreateFrame("Frame", LootDistr .. "MainFrame", UIParent)
-f:SetSize(620, 460)  -- made a bit taller to fit delete button
+f:SetSize(620, 460)
 f:SetPoint("CENTER")
 f:Hide()
 

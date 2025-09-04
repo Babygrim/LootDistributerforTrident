@@ -1,6 +1,25 @@
 local LootDistr, LDData = ...
 local f = LDData.main_frame
 
+f.SettingsEventFrame = CreateFrame("Frame")
+f.SettingsEventFrame.RegisterEvent("CONFIRM_LOOT_SLOT")
+
+f.SettingsEventFrame:SetScript("OnEvent", function(self, event, msg, ...)
+    if event == "LOOT_OPENED" then
+        LDData.OnLootingMasterLooter()
+        return
+    end
+
+    if event == "PLAYER_TARGET_CHANGED" then
+        LDData.OnTargetChangedLootMaster()
+        return
+    end
+
+    if event == "CONFIRM_LOOT_SLOT" then
+        return
+    end
+end)
+
 function OnTargetChanged(self, event)
     local inGroup = IsInGroup()
     local inRaid = IsInRaid()
@@ -95,6 +114,3 @@ function OnLooting(self, event, autoLoot)
     end
 
 end
-
-LDData.OnTargetChangedLootMaster = OnTargetChanged
-LDData.OnLootingMasterLooter = OnLooting

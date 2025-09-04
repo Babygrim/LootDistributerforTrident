@@ -1,7 +1,7 @@
 local LootDistr, LDData = ...
 
 function InitializeAddonCore()
-    local AddonVersion = "v1.1"
+    local AddonVersion = "v1.2"
     -- Saved Variables
     -- Reserves + CSVImport
     SoftResSaved = SoftResSaved or {}
