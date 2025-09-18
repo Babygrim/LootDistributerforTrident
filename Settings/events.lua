@@ -31,11 +31,11 @@ function OnTargetChanged(self, event)
         local enabled = true
 
         -- If inside a raid instance, maxPlayers tells you (10 or 25)
-        if instanceType == "raid" and maxPlayers then
+        if inRaid and maxPlayers then
             if maxPlayers == 10 and LootRollerAddonSettings.disableLootSwitchFor10Man then
                 enabled = false
             end
-        elseif instanceType == "party" and LootRollerAddonSettings.disableLootSwitchForNonRaidGroup then
+        elseif inGroup and LootRollerAddonSettings.disableLootSwitchForNonRaidGroup then
             enabled = false
         end
 
