@@ -159,6 +159,75 @@ function InitializeAddonCore()
         ["Kaz'rogal"] = "Hyjal Summit",
         ["Azgalor"] = "Hyjal Summit",
         ["Archimonde"] = "Hyjal Summit",
+
+        -- Naxxramas
+        ["Anub'Rekhan"] = "Naxxramas",
+        ["Grand Widow Faerlina"] = "Naxxramas",
+        ["Maexxna"] = "Naxxramas",
+        ["Noth the Plaguebringer"] = "Naxxramas",
+        ["Heigan the Unclean"] = "Naxxramas",
+        ["Loatheb"] = "Naxxramas",
+        ["Patchwerk"] = "Naxxramas",
+        ["Grobbulus"] = "Naxxramas",
+        ["Gluth"] = "Naxxramas",
+        ["Thaddius"] = "Naxxramas",
+        ["Sapphiron"] = "Naxxramas",
+        ["Kel'Thuzad"] = "Naxxramas",
+
+        -- The Eye of Eternity
+        ["Malygos"] = "The Eye of Eternity",
+
+        -- The Obsidian Sanctum
+        ["Sartharion"] = "The Obsidian Sanctum",
+        ["Sartharion the Everwatcher"] = "The Obsidian Sanctum",
+
+        -- Vault of Archavon
+        ["Archavon the Stone Watcher"] = "Vault of Archavon",
+        ["Emaiss, Bringer of Snow"] = "Vault of Archavon",
+        ["Koralon the Flame Watcher"] = "Vault of Archavon",
+        ["Toravon the Ice Watcher"] = "Vault of Archavon",
+
+        -- Ulduar
+        ["Flame Leviathan"] = "Ulduar",
+        ["Ignis the Furnace Master"] = "Ulduar",
+        ["Razorscale"] = "Ulduar",
+        ["XT-002 Deconstructor"] = "Ulduar",
+        ["The Assembly of Iron"] = "Ulduar",
+        ["Steelbreaker"] = "Ulduar",
+        ["Molgeim"] = "Ulduar",
+        ["Brundir the Dragonkiller"] = "Ulduar",
+        ["Kologarn"] = "Ulduar",
+        ["Auriaya"] = "Ulduar",
+        ["Mimiron"] = "Ulduar",
+        ["General Vezax"] = "Ulduar",
+        ["Yogg-Saron"] = "Ulduar",
+        ["The Keepers of Ulduar"] = "Ulduar",
+
+        -- Trial of the Crusader
+        ["The Beasts of Northrend"] = "Trial of the Crusader",
+        ["Lord Jaraxxus"] = "Trial of the Crusader",
+        ["Faction Champions"] = "Trial of the Crusader",
+        ["The Twin Val'kyr"] = "Trial of the Crusader",
+        ["Anub'arak"] = "Trial of the Crusader",
+
+        -- Icecrown Citadel
+        ["Lord Marrowgar"] = "Icecrown Citadel",
+        ["Lady Deathwhisper"] = "Icecrown Citadel",
+        ["Gunship Battle"] = "Icecrown Citadel",
+        ["Deathbringer Saurfang"] = "Icecrown Citadel",
+        ["Festergut"] = "Icecrown Citadel",
+        ["Rotface"] = "Icecrown Citadel",
+        ["Professor Putricide"] = "Icecrown Citadel",
+        ["Blood Prince Council"] = "Icecrown Citadel",
+        ["Blood-Queen Lana'thel"] = "Icecrown Citadel",
+        ["Sindragosa"] = "Icecrown Citadel",
+        ["The Lich King"] = "Icecrown Citadel",
+
+        -- The Ruby Sanctum
+        ["Baltharus the Warborn"] = "The Ruby Sanctum",
+        ["Zarithrian"] = "The Ruby Sanctum",
+        ["Sharthos"] = "The Ruby Sanctum",
+        ["Halion"] = "The Ruby Sanctum",
     }
 
     -- CSV
