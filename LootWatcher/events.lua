@@ -1,6 +1,8 @@
 local LootDistr, LDData = ...
 local f = LDData.main_frame
 
+local masterLooterName = nil
+
 f.LootWatcherEventFrame = CreateFrame("Frame")
 f.LootWatcherEventFrame:RegisterEvent("CHAT_MSG_LOOT")
 f.LootWatcherEventFrame:RegisterEvent("CHAT_MSG_MONEY")
@@ -13,6 +15,17 @@ f.LootWatcherEventFrame:RegisterEvent("LOOT_ROLL_WON")
 f.LootWatcherEventFrame:SetScript("OnEvent", function(self, event, msg, ...)
     if event == "PARTY_LOOT_METHOD_CHANGED" then
         local lootMethod, masterLooter = GetLootMethod()
+        
+        -- Capture master looter name
+        if lootMethod == "master" then
+            if masterLooter == 0 then
+                masterLooterName = UnitName("player")
+            else
+                masterLooterName = GetRaidRosterInfo(masterLooter)
+            end
+        else
+            masterLooterName = nil
+        end
 
         if GetNumRaidMembers() > 0 and lootMethod == "master" and masterLooter == 0 then
             local currentLocaleText = nil
@@ -38,12 +51,12 @@ f.LootWatcherEventFrame:SetScript("OnEvent", function(self, event, msg, ...)
             end
         end
 
-        if not LootWatcherActivated and (IsInRaid() or (IsInGroup() and LootRollerAddonSettings.lootWatcherGroupSwitch) or LootRollerAddonSettings.lootWatcherNonGroupSwitch) then
+        if not LootWatcherActivated and (GetNumRaidMembers() > 0 or (GetNumPartyMembers() > 0 and LootRollerAddonSettings.lootWatcherGroupSwitch) or LootRollerAddonSettings.lootWatcherNonGroupSwitch) then
             print("|cff00FF00[LootDistributer]|r "..LDData.messages.system.joinedRaid.." "..threshold)
             LootWatcherActivated = true
         end
 
-        if LootWatcherActivated and not IsInRaid() and not (IsInGroup() and LootRollerAddonSettings.lootWatcherGroupSwitch) and not LootRollerAddonSettings.lootWatcherNonGroupSwitch then
+        if LootWatcherActivated and GetNumRaidMembers() == 0 and not (GetNumPartyMembers() > 0 and LootRollerAddonSettings.lootWatcherGroupSwitch) and not LootRollerAddonSettings.lootWatcherNonGroupSwitch then
             print("|cffFF4500[LootDistributer]|r "..LDData.messages.system.leftRaid.."")
             LootWatcherActivated = false
         end
@@ -54,7 +67,7 @@ f.LootWatcherEventFrame:SetScript("OnEvent", function(self, event, msg, ...)
         if not msg then return end
         
         local trackLootCheck = false
-        if (IsInGroup() and LootRollerAddonSettings.lootWatcherGroupSwitch) or IsInRaid() or LootRollerAddonSettings.lootWatcherNonGroupSwitch then
+        if (GetNumPartyMembers() > 0 and LootRollerAddonSettings.lootWatcherGroupSwitch) or GetNumRaidMembers() > 0 or LootRollerAddonSettings.lootWatcherNonGroupSwitch then
             trackLootCheck = true
         end
 
@@ -96,7 +109,7 @@ f.LootWatcherEventFrame:SetScript("OnEvent", function(self, event, msg, ...)
                         count = count,
                         time = date("%d/%m/%Y %H:%M:%S"),
                         lootMethod = GetLootMethod(),
-                        looter = masterLooterName or "Unknown",
+                        looter = masterLooterName,
                         rolls = {},
                     })
 

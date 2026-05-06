@@ -2,6 +2,7 @@ local LootDistr, LDData = ...
 
 function InitializeLootRollerEvents()
     local f = LDData.main_frame
+    
     -- Confirmation popup for ending roll session
     StaticPopupDialogs[LootDistr .. "ConfirmEndLootRoller"] = {
         text = LDData.messages.dialogs.confirmEndRoll,
@@ -63,6 +64,20 @@ function InitializeLootRollerEvents()
                     else
                         msg = LDData.localeMessages[LootRollerLocaleSettings].system.rollEndedNoRolls
                     end
+                    
+                    -- Format roll data for LootWatcher with winner flag
+                    local formattedRolls = {}
+                    for playerName, rollData in pairs(LootRolls) do
+                        table.insert(formattedRolls, {
+                            name = playerName,
+                            roll = rollData.roll,
+                            spec = rollData.spec,
+                            winner = (winnerName == playerName)
+                        })
+                    end
+                    
+                    -- Update LootWatcherData with roll information
+                    UpdateLootWatcherDataWithRolls(CurrentRollItem.ID, formattedRolls)
             
                     -- Reset loot roller state
                     CurrentRollItem = {}
@@ -148,7 +163,6 @@ function InitializeLootRollerEvents()
 
     f.eventFrame_roller:SetScript("OnEvent", function(self, event, msg)
         if event == "CHAT_MSG_SYSTEM" then
-            -- Parse roll message like "Player rolls 42 (1-100)"
             local playerName, rollValue, lowEnd, highEnd = string.match(msg, LDData.messages.regex.systemRoll)
             if playerName and rollValue and CurrentRollItem.ID then
                 rollValue = tonumber(rollValue)
@@ -161,8 +175,6 @@ function InitializeLootRollerEvents()
                 else
                     spec = "TMOG"
                 end
-                -- Call our loot roller handler
-                -- print(LDData.currentLootRollItemId, playerName, rollValue, "WE ROLLIN BABE, FROM "..lowEnd.." TO "..highEnd)
                 LDData.HandleNewRoll(CurrentRollItem.ID, playerName, rollValue, spec)
             end
         end

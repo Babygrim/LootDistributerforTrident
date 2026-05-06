@@ -17,13 +17,6 @@ function CreateLootRow(index)
     row.itemFrame = CreateFrame("Button", nil, row)
     row.itemFrame:SetSize(LDData.lootHeaders[1].width, LDData.rowHeight)
     row.itemFrame:SetPoint("LEFT", row, "LEFT", 0, 0)
-    -- row.itemFrame:SetBackdrop({
-    --     bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-    --     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    --     tile = true, tileSize = 16, edgeSize = 16,
-    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    -- })
-    -- row.itemFrame:SetBackdropColor(0, 1, 0, 0.15)
 
     row.itemFrame:EnableMouse(true)
     row.itemFrame:SetFrameLevel(row:GetFrameLevel() + 1)
@@ -55,13 +48,6 @@ function CreateLootRow(index)
     row.playerFrame = CreateFrame("Button", nil, row)
     row.playerFrame:SetSize(LDData.lootHeaders[2].width, LDData.rowHeight)
     row.playerFrame:SetPoint("LEFT", row.itemFrame, "RIGHT", 0, 0)
-    -- row.playerFrame:SetBackdrop({
-    --     bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-    --     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    --     tile = true, tileSize = 16, edgeSize = 16,
-    --     insets = { left = 4, right = 4, top = 4, bottom = 4 }
-    -- })
-    -- row.playerFrame:SetBackdropColor(0, 1, 1, 0.15)
 
     row.playerFrame:EnableMouse(true)
     row.playerFrame:SetFrameLevel(row:GetFrameLevel() + 1)
@@ -72,29 +58,120 @@ function CreateLootRow(index)
         GameTooltip:ClearLines()
 
         local entry = self.info
+        local hasInfo = false
 
-        if entry.lootMethod == "master" then
+        -- Show Loot Roller rolls if available (grouped by spec)
+        if entry.rolls and #entry.rolls > 0 and entry.rolls[1].spec then
+            GameTooltip:AddLine("|cffffd100Loot Roller Rolls:|r", 1, 1, 1)
+            
+            -- Group rolls by spec
+            local rollsBySpec = { Main = {}, Off = {}, TMOG = {} }
+            for _, roll in ipairs(entry.rolls) do
+                table.insert(rollsBySpec[roll.spec] or {}, roll)
+            end
+            
+            -- Sort each spec group by roll value descending
+            for _, rolls in pairs(rollsBySpec) do
+                table.sort(rolls, function(a, b) return a.roll > b.roll end)
+            end
+            
+            -- Display Main spec rolls
+            if #rollsBySpec.Main > 0 then
+                GameTooltip:AddLine("|cff00FF00\nMain:|r")
+                for _, roll in ipairs(rollsBySpec.Main) do
+                    local color = roll.winner and {1, 0.8, 0} or {1, 1, 1}
+                    local text = string.format("  %s: %d%s",
+                        roll.name,
+                        roll.roll,
+                        roll.winner and " [WINNER]" or ""
+                    )
+                    GameTooltip:AddLine(text, unpack(color))
+                end
+            end
+            
+            -- Display Off spec rolls
+            if #rollsBySpec.Off > 0 then
+                GameTooltip:AddLine("|cff4488FF\nOff:|r")
+                for _, roll in ipairs(rollsBySpec.Off) do
+                    local color = roll.winner and {1, 0.8, 0} or {1, 1, 1}
+                    local text = string.format("  %s: %d%s",
+                        roll.name,
+                        roll.roll,
+                        roll.winner and " [WINNER]" or ""
+                    )
+                    GameTooltip:AddLine(text, unpack(color))
+                end
+            end
+            
+            -- Display TMOG spec rolls
+            if #rollsBySpec.TMOG > 0 then
+                GameTooltip:AddLine("|cffB366FF\nTmog:|r")
+                for _, roll in ipairs(rollsBySpec.TMOG) do
+                    local color = roll.winner and {1, 0.8, 0} or {1, 1, 1}
+                    local text = string.format("  %s: %d%s",
+                        roll.name,
+                        roll.roll,
+                        roll.winner and " [WINNER]" or ""
+                    )
+                    GameTooltip:AddLine(text, unpack(color))
+                end
+            end
+            
+            hasInfo = true
+        end
+
+        -- Show Master Looter if available
+        if entry.lootMethod == "master" and entry.looter then
             GameTooltip:AddLine(
-                string.format("|cffffd100Master Looter:|r %s", entry.looter or "Unknown"),
+                string.format("|cffffd100\nMaster Looter:|r %s", entry.looter),
                 1, 1, 1
             )
-        elseif entry.lootMethod == "group" and entry.rolls then
+            hasInfo = true
+        end
+
+        -- Show Group loot rolls if available - only show highest priority
+        if entry.rolls and #entry.rolls > 0 and (not entry.rolls[1].spec) then
             GameTooltip:AddLine("|cffffd100Group Loot Rolls:|r", 1, 1, 1)
+            
+            -- Find highest priority roll type
+            local hasNeed = false
+            local hasGreed = false
+            local hasDisenchant = false
+            local hasPass = false
+            local needPlayer, greedPlayer, disenchantPlayer, passPlayer
+            
             for _, roll in ipairs(entry.rolls) do
-                local color = {1,1,1}
-                if roll.rollType == "NEED" then color = {0,1,0}
-                elseif roll.rollType == "GREED" then color = {0,0.7,1}
-                elseif roll.rollType == "DISENCHANT" then color = {0.7,0.3,1}
-                elseif roll.rollType == "PASS" then color = {0.7,0.7,0.7}
+                if roll.rollType == "NEED" then
+                    hasNeed = true
+                    needPlayer = roll.name
+                elseif roll.rollType == "GREED" then
+                    hasGreed = true
+                    greedPlayer = roll.name
+                elseif roll.rollType == "DISENCHANT" then
+                    hasDisenchant = true
+                    disenchantPlayer = roll.name
+                elseif roll.rollType == "PASS" then
+                    hasPass = true
+                    passPlayer = roll.name
                 end
-                local text = string.format("%s: %s%s",
-                    roll.name,
-                    roll.rollType,
-                    roll.roll and (" ("..roll.roll..")") or ""
-                )
-                GameTooltip:AddLine(text, unpack(color))
             end
-        else
+            
+            -- Display highest priority (Need > Greed > Disenchant > Pass)
+            if hasNeed then
+                GameTooltip:AddLine(string.format("Need: %s", needPlayer), 0, 1, 0)
+            elseif hasGreed then
+                GameTooltip:AddLine(string.format("Greed: %s", greedPlayer), 0, 0.7, 1)
+            elseif hasDisenchant then
+                GameTooltip:AddLine(string.format("Disenchant: %s", disenchantPlayer), 0.7, 0.3, 1)
+            elseif hasPass then
+                GameTooltip:AddLine(string.format("Pass: %s", passPlayer), 0.7, 0.7, 0.7)
+            end
+            
+            hasInfo = true
+        end
+
+        -- Show default message if no info available
+        if not hasInfo then
             GameTooltip:AddLine("Item wasn't rolled or given by master looter.", 1, 1, 1)
         end
 
@@ -139,6 +216,31 @@ function TrimLootWatcherData()
         local oldest = table.remove(LootWatcherData, 1) -- remove oldest entry
         totalCount = totalCount - (oldest.count or 1)
     end
+end
+
+function ExtractItemIDFromLink(itemLink)
+    if not itemLink then return nil end
+    return itemLink:match("|Hitem:(%d+):")
+end
+
+-- Updates the most recent loot entry for a given item ID with roll information
+-- Prioritizes the freshest record that doesn't have rolls yet
+function UpdateLootWatcherDataWithRolls(itemID, rollsData)
+    if not itemID or not LootWatcherData then return false end
+    
+    -- Find the most recent entry with matching itemID that has no rolls yet
+    for i = #LootWatcherData, 1, -1 do
+        local entry = LootWatcherData[i]
+        local entryItemID = ExtractItemIDFromLink(entry.item)
+        if entryItemID == tostring(itemID) then
+            -- Check if this entry has no rolls or empty rolls
+            if not entry.rolls or #entry.rolls == 0 then
+                entry.rolls = rollsData or {}
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function UpdateLootWatcherTable(filterText)
@@ -190,7 +292,7 @@ function UpdateLootWatcherTable(filterText)
         -- Set item text and tooltip
         row.itemText:SetText(link)
         row.itemFrame.link = link
-        row.playerFrame.info = {filteredData.lootMethod, filteredData.looter, filteredData.rolls}
+        row.playerFrame.info = data
 
         -- Other columns
         row.playerText:SetText(data.player or "")
