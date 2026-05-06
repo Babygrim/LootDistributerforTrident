@@ -170,6 +170,12 @@ function CreateLootRow(index)
             hasInfo = true
         end
 
+        -- Show roll message if available (e.g., when no rolls were registered)
+        if entry.rollMessage and not hasInfo then
+            GameTooltip:AddLine("|cffffd100Loot Roller:|r " .. entry.rollMessage, 1, 1, 0)
+            hasInfo = true
+        end
+
         -- Show default message if no info available
         if not hasInfo then
             GameTooltip:AddLine("Item wasn't rolled or given by master looter.", 1, 1, 1)

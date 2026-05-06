@@ -78,6 +78,21 @@ function InitializeLootRollerEvents()
                     
                     -- Update LootWatcherData with roll information
                     UpdateLootWatcherDataWithRolls(CurrentRollItem.ID, formattedRolls)
+
+                    -- Broadcast rolling results data for addon data sync
+                    -- Format: ITEMID;PLAYERNAME,ROLL,SPEC,WINNER;PLAYERNAME,ROLL,SPEC,WINNER,...
+                    -- Format (no rolls): ITEMID;NO_ROLLS
+                    local broadcast_msg = tostring(CurrentRollItem.ID)..";"
+
+                    if #formattedRolls > 0 then
+                        for i, roll in ipairs(formattedRolls) do
+                            broadcast_msg = broadcast_msg .. roll.name .. "," .. roll.roll .. "," .. roll.spec .. "," .. (roll.winner and "1" or "0") .. ';'
+                        end
+                    else
+                        broadcast_msg = broadcast_msg .. "NO_ROLLS"
+                    end
+                    
+                    SendAddonMessage(LootDistr, broadcast_msg, "RAID")
             
                     -- Reset loot roller state
                     CurrentRollItem = {}
@@ -222,5 +237,95 @@ function InitializeLootRollerEvents()
     end)
 end
 
+
+-- Loot Roller rolling info broadcasting handlers
+
+function HandleBroadcastedRollData(message)
+    -- Parse broadcast message format: ITEMID;PLAYERNAME,ROLL,SPEC,WINNER;PLAYERNAME,ROLL,SPEC,WINNER;...
+    -- Parse broadcast message (no rolls): ITEMID;NO_ROLLS
+    if not message or message == "" then return end
+    
+    local parts = {}
+    for part in message:gmatch("[^;]+") do
+        table.insert(parts, part)
+    end
+    
+    if #parts < 2 then return end
+    
+    local itemID = tonumber(parts[1])
+    
+    if not itemID or itemID == 0 then return end
+    
+    -- Check if this is a "no rolls" message
+    if parts[2] == "NO_ROLLS" then
+        UpdateLootWatcherDataWithMessage(itemID, "No rolls registered")
+        return
+    end
+    
+    -- Parse roll data from parts 2 onwards: PLAYERNAME,ROLL,SPEC,WINNER
+    local rolls = {}
+    for i = 2, #parts do
+        local rollParts = {}
+        for part in parts[i]:gmatch("[^,]+") do
+            table.insert(rollParts, part)
+        end
+        
+        if #rollParts >= 4 then
+            table.insert(rolls, {
+                name = rollParts[1],
+                roll = tonumber(rollParts[2]) or 0,
+                spec = rollParts[3],
+                winner = rollParts[4] == "1"
+            })
+        end
+    end
+    
+    -- Update LootWatcherData with the roll information
+    UpdateLootWatcherDataWithBroadcastedRolls(itemID, rolls)
+end
+
+function UpdateLootWatcherDataWithBroadcastedRolls(itemID, rolls)
+    if not LootWatcherData then 
+        print("|cffFF4500[DEBUG]|r LootWatcherData is nil")
+        return 
+    end
+    
+    
+    -- Find the most recent entry that matches itemID and has no roll data yet (iterate backwards)
+    for i = #LootWatcherData, 1, -1 do
+        local lootEntry = LootWatcherData[i]
+        if lootEntry then
+            local entryItemID = tonumber((lootEntry.item or ""):match("item:(%d+)"))
+            if entryItemID == itemID and (not lootEntry.rolls or #lootEntry.rolls == 0) then
+                lootEntry.rolls = rolls or {}
+                if f.lootSearchBox then
+                    UpdateLootWatcherTable(f.lootSearchBox:GetText())
+                end
+                return
+            end
+        end
+    end
+end
+
+function UpdateLootWatcherDataWithMessage(itemID, message)
+    if not LootWatcherData then return end
+    
+    -- Find the most recent entry that matches itemID and has no roll data yet (iterate backwards)
+    for i = #LootWatcherData, 1, -1 do
+        local lootEntry = LootWatcherData[i]
+        if lootEntry then
+            local entryItemID = tonumber((lootEntry.item or ""):match("item:(%d+)"))
+            if entryItemID == itemID and (not lootEntry.rolls or #lootEntry.rolls == 0) then
+                lootEntry.rollMessage = message
+                if f.lootSearchBox then
+                    UpdateLootWatcherTable(f.lootSearchBox:GetText())
+                end
+                return
+            end
+        end
+    end
+end
+
 -- GLOBALS
 LDData.InitializeLootRollerEvents = InitializeLootRollerEvents
+LDData.HandleBroadcastedRollData = HandleBroadcastedRollData
